@@ -1,0 +1,54 @@
+<?php
+include("to_connect.php");
+require_once '../phpqrcode/qrlib.php'; // <-- make sure phpqrcode library is available
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $no_tel = $_POST['no_tel'];
+    $location = $_POST['location'];
+    $longitude = $_POST['longitude'];
+    $latitude = $_POST['latitude'];
+
+    // Step 1: Insert new recipient
+    $insert = "INSERT INTO recipient (name, email, no_tel, location, longitude, latitude)
+               VALUES ('$name', '$email', '$no_tel', '$location', '$longitude', '$latitude')";
+    $result = mysqli_query($conn, $insert);
+
+    if ($result) {
+        $recipient_id = mysqli_insert_id($conn);
+
+        // Step 2: Generate QR code automatically
+        $qrData = "Recipient ID: $recipient_id\nName: $name\nLocation: $location";
+        $folderPath = "../uploads/qr_codes/";
+        if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
+
+        $fileName = "qr_" . $recipient_id . ".png";
+        $filePath = $folderPath . $fileName;
+
+        QRcode::png($qrData, $filePath, QR_ECLEVEL_L, 10);
+
+        // Step 3: Save to qr_code table
+        $qrValue = "uploads/qr_codes/" . $fileName;
+        $insertQR = "INSERT INTO qr_code (recipient_id, qr_value, generated_at)
+                     VALUES ('$recipient_id', '$qrValue', NOW())";
+        mysqli_query($conn, $insertQR);
+
+        // Step 4: Immediately mark parcel as "On Delivery"
+        $insertLog = "INSERT INTO parcel_log (recipient_id, status, updated_at)
+                      VALUES ('$recipient_id', 'Delivery', NOW())";
+        mysqli_query($conn, $insertLog);
+
+        // Step 5: Update controller to reflect delivery started
+        mysqli_query($conn, "
+                        UPDATE tbl_controller 
+                        SET status = 'Delivery',
+                            user_verify = 0,
+                            geofence_status = 0
+        ");
+    }
+
+    header("Location: ../interface/admin/recipient.php?success=true");
+    exit();
+}
+?>

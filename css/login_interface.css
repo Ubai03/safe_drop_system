@@ -1,0 +1,61 @@
+#loginButton {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#loginButton:hover {
+    background-color: #854643;
+    color: white;
+    border: transparent;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
+}
+
+#titleLogin {
+    color: white;
+    letter-spacing: 1px;
+}
+
+#login {
+    background-color: #FCB96A;
+}
+
+#loginForm {
+    color: black;
+}
+
+#linkSignUp {
+    color: white;
+}
+
+#linkSignUp:hover {
+    text-decoration: none;
+    text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title,
+.modal-body {
+    color: black;
+}
+
+.align-center {
+    text-align: center;
+}
+
+
+.align-right {
+    text-align: right;
+}
+
+
+.rounded-circle {
+    width: 45%
+}
+
+#formTable {
+    margin: auto;
+}

@@ -1,0 +1,430 @@
+#accordionSidebar {
+    background-color: #FCB96A;
+}
+
+#sidebar:hover {
+    background-color: #854643;
+    color: white;
+    font-weight: bold;
+}
+
+#sidebar:hover i {
+    color: white;
+}
+
+.navbar {
+    background-color: #854643;
+}
+
+.dropdown-item:hover {
+    background-color: #854643;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+    color: black;
+}
+
+/* Toggled sidebar */
+.sidebar.toggled {
+    width: 56px;
+    /* Smaller width */
+}
+
+/* Sidebar toggle button */
+#sidebarToggleTop {
+    color: #fff;
+    text-decoration: none;
+}
+
+#warningTitle {
+    color: #D22B2B;
+}
+
+.user-box {
+    display: flex;
+    /* Make it a flex container */
+    align-items: center;
+    /* Vertically align items */
+    padding: 15px;
+}
+
+.avatar-lg {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    /* Prevent image from shrinking */
+}
+
+.avatar-img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    /* Circular image */
+}
+
+.u-text {
+    margin-left: 15px;
+    /* Space between the image and text */
+}
+
+.u-text h4 {
+    margin: 0;
+    /* Remove default margin */
+    font-size: 16px;
+    font-weight: bold;
+    color: #051d40;
+}
+
+.u-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #6c757d;
+    /* Text-muted */
+}
+
+.u-text .btn {
+    margin-top: 10px;
+}
+
+.fa-bars {
+    color: #051d40;
+}
+
+#title {
+    color: #051d40;
+}
+
+.card-header {
+    background-color: #FDA52C;
+    color: #051d40;
+}
+
+.submitBtn {
+    background-color: #FDA52C !important;
+    color: black;
+    font-weight: bold;
+}
+
+.submitBtn:hover {
+    background-color: #FDA52C !important;
+    color: black;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#userType {
+    color: black;
+}
+
+.cancelBtn {
+    background-color: #D22B2B;
+    color: white;
+    font-weight: bold;
+}
+
+.cancelBtn:hover {
+    background-color: #D22B2B;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.notiClose {
+    background-color: #D22B2B;
+    color: white;
+    font-weight: bold;
+}
+
+.notiClose:hover {
+    background-color: #D22B2B;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.notiConfirm {
+    background-color: #ffde59;
+    color: black;
+    font-weight: bold;
+}
+
+.notiConfirm:hover {
+    background-color: #ffde59;
+    color: black;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.modal-body {
+    color: black
+}
+
+/* ==========================
+   🔔 Adjusted Notification Layout
+   ========================== */
+
+.noti-item {
+    background: #fff7e3;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 18px;
+    /* push right slightly */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #854643;
+    transition: all 0.2s ease-in-out;
+    font-size: 13.5px;
+    position: relative;
+}
+
+.noti-item:hover {
+    background: #fff2d6;
+    transform: scale(1.02);
+}
+
+.noti-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.noti-time {
+    font-size: 12px;
+    color: #777;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ✅ Move approve/reject buttons below message */
+.noti-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    /* align to right */
+    gap: 8px;
+    position: relative;
+    /* no absolute now */
+}
+
+.noti-actions .btn {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.noti-actions .btn:hover {
+    transform: scale(1.1);
+}
+
+/* Keep dropdown safe within screen */
+.custom-noti-dropdown {
+    width: 360px !important;
+    max-width: 95vw;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    right: 0;
+    left: auto !important;
+}
+
+/* ================================
+   🔔 Improved Notification Display
+   ================================ */
+
+/* Make dropdown box bigger and more readable */
+.custom-noti-dropdown {
+    width: 360px !important;
+    /* make wider */
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* The scrollable area */
+#noti_content {
+    max-height: 380px;
+    /* taller for better reading */
+    overflow-y: auto;
+    padding-right: 8px;
+    background-color: #fff8f3;
+}
+
+#noti_content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#noti_content::-webkit-scrollbar-thumb {
+    background-color: rgba(133, 70, 67, 0.6);
+    border-radius: 6px;
+}
+
+/* Each notification card */
+.noti-item {
+    background: #fff7e3;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 10px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #854643;
+    transition: all 0.2s ease-in-out;
+    font-size: 13.5px;
+}
+
+.noti-item:hover {
+    background: #fff2d6;
+    transform: scale(1.02);
+}
+
+.noti-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.noti-time {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+.noti-actions {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+}
+
+.noti-actions .btn {
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 12px;
+}
+
+/* ===== Red Round Counter Badge ===== */
+.notification {
+    background-color: #d22b2b;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================
+   🔔 Adjusted Notification Layout
+   ========================== */
+
+.noti-item {
+    background: #fff7e3;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 18px;
+    /* push right slightly */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #854643;
+    transition: all 0.2s ease-in-out;
+    font-size: 13.5px;
+    position: relative;
+}
+
+.noti-item:hover {
+    background: #fff2d6;
+    transform: scale(1.02);
+}
+
+.noti-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.noti-time {
+    font-size: 12px;
+    color: #777;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ✅ Move approve/reject buttons below message */
+.noti-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    /* align to right */
+    gap: 8px;
+    position: relative;
+    /* no absolute now */
+}
+
+.noti-actions .btn {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.noti-actions .btn:hover {
+    transform: scale(1.1);
+}
+
+/* Keep dropdown safe within screen */
+.custom-noti-dropdown {
+    width: 360px !important;
+    max-width: 95vw;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    right: 0;
+    left: auto !important;
+}
+
+/*  Shift the notification dropdown slightly to the right */
+.custom-noti-dropdown {
+    margin-left: 15px;
+    /* move the entire box right */
+    transform: translateX(10px);
+    /* fine adjustment */
+}
+
+/* Keep it responsive — prevent going out of screen on small devices */
+@media (max-width: 480px) {
+    .custom-noti-dropdown {
+        margin-left: 0;
+        transform: translateX(0);
+        right: 0;
+    }
+}
