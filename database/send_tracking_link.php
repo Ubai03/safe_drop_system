@@ -22,6 +22,16 @@ function jsonResponse($status, $message, $extra = []) {
     exit;
 }
 
+// Generate a Base32 TOTP secret (Google Authenticator compatible)
+function generateTotpSecret($length = 32) {
+    $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Base32 charset
+    $secret = '';
+    for ($i = 0; $i < $length; $i++) {
+        $secret .= $chars[random_int(0, strlen($chars) - 1)];
+    }
+    return $secret;
+}
+
 try {
     if (empty($_POST['recipient_id'])) {
         jsonResponse("error", "Missing recipient_id");
@@ -45,10 +55,15 @@ try {
 
     // --- Generate tracking token ---
     $token = bin2hex(random_bytes(16));
+    $totp_secret = generateTotpSecret();
+
     $insert = mysqli_query($conn, "
-        INSERT INTO tracking_links (recipient_id, token)
-        VALUES ('$recipient_id', '$token')
-        ON DUPLICATE KEY UPDATE token='$token', created_at=NOW()
+        INSERT INTO tracking_links (recipient_id, token, totp_secret)
+        VALUES ('$recipient_id', '$token', '$totp_secret')
+        ON DUPLICATE KEY UPDATE 
+            token='$token',
+            totp_secret='$totp_secret',
+            created_at=NOW()
     ");
 
     if (!$insert) {
