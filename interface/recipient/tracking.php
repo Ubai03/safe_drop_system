@@ -1,4 +1,6 @@
 <?php
+require_once "../../phpqrcode/qrlib.php";
+
 include("../../database/to_connect.php");
 
 // Get recipient info from tracking link
@@ -44,6 +46,30 @@ if (!$result || mysqli_num_rows($result) === 0) {
     die("<h3 style='color:red;'>Invalid or expired token.</h3>");
 }
 
+$tracking = mysqli_fetch_assoc($result);
+
+if (empty($tracking['totp_secret'])) {
+    die("<h3 style='color:red;'>Authenticator setup not available.</h3>");
+}
+
+$totp_secret = $tracking['totp_secret'];
+
+$issuer = "SafeDrop";
+$label  = "SafeDrop:Recipient_" . $recipient_id;
+
+$otpAuthUri = "otpauth://totp/" . urlencode($label)
+    . "?secret=" . $totp_secret
+    . "&issuer=" . urlencode($issuer);
+
+$qrDir = "../uploads/qr_codes/";
+if (!is_dir($qrDir)) {
+    mkdir($qrDir, 0777, true);
+}
+
+$gaQrFile = "ga_recipient_" . $recipient_id . ".png";
+$gaQrPath = $qrDir . $gaQrFile;
+
+QRcode::png($otpAuthUri, $gaQrPath, QR_ECLEVEL_L, 6);
 
 // Get recipient destination location
 $recipient_query = "SELECT latitude, longitude, location FROM recipient WHERE recipient_id='$recipient_id' LIMIT 1";
@@ -71,6 +97,7 @@ $parcel = mysqli_fetch_assoc($parcel_result);
 $lat = $parcel['parcel_lat'];
 $lng = $parcel['parcel_long'];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -168,8 +195,10 @@ $lng = $parcel['parcel_long'];
                 <!-- QR Scanner Section -->
                 <div class="card shadow mb-4 text-center">
                     <div class="card-body">
-                        <h5><i class="fas fa-qrcode"></i> Scan Parcel QR Code</h5>
-                        <p>When your parcel arrives, scan the QR code on the box to confirm delivery.</p>
+                        <!--<h5><i class="fas fa-qrcode"></i> Scan Parcel QR Code</h5>
+                        <p>When your parcel arrives, scan the QR code on the box to confirm delivery.</p>-->
+                        <p>Scan this QR using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
+                        <img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">
                         <button id="startScan" class="btn btn-success"><i class="fas fa-camera"></i> Start Scan</button>
                         <div id="reader" style="width: 320px; margin: 20px auto; display:none;"></div>
                         <p id="scanResult" style="font-weight:bold; color:#854643; margin-top:15px;"></p>
@@ -198,8 +227,9 @@ $lng = $parcel['parcel_long'];
                     <h5 class="modal-title"><i class="fas fa-lock"></i> Verification Required</h5>
                 </div>
                 <div class="modal-body text-center">
-                    <p>Enter the password.</p>
-                    <input type="password" id="phoneDigits" maxlength="4" class="form-control text-center" placeholder="1234" style="width:120px; margin:auto;">
+                    <!--<p>Enter the password.</p>
+                    <input type="password" id="phoneDigits" maxlength="4" class="form-control text-center" placeholder="1234" style="width:120px; margin:auto;">-->
+                    <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
                     <p id="attempt_message" style="margin-top:10px; color:#555; font-weight:bold;"></p>
                     <p id="verifyMessage" style="margin-top:10px; color:red; font-weight:bold;"></p>
                 </div>
@@ -434,7 +464,7 @@ window.addEventListener('load', async () => {
           scanResult.innerHTML = `✅ QR Code Scanned: <b>${qrCodeMessage}</b>`;
            // 🆕 Show modal and fetch attempt info
           openVerificationModal(recipientId);
-          confirmBtn.onclick = () => verifyCode(qrCodeMessage);
+          confirmBtn.onclick = () => verifyOtp();
         },
         errorMsg => console.warn("Scanning...", errorMsg)
       );
@@ -471,6 +501,18 @@ window.addEventListener('load', async () => {
     verifyMsg.innerHTML = "";
     startScanBtn.disabled = false;
   };
+
+  function verifyOtp() {
+    const otp = document.getElementById("otpCode").value.trim();
+
+    if (otp.length !== 6) {
+        verifyMsg.innerHTML = "Enter 6-digit code.";
+        return;
+    }
+
+    verifyMsg.style.color = "blue";
+    verifyMsg.innerHTML = "OTP entered. Verification will be implemented next.";
+}
 
   function verifyCode(qrValue) {
     const digits = phoneInput.value.trim();
