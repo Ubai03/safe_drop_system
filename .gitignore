@@ -1,3 +1,3 @@
 phpqrcode/*.txt
 phpqrcode/*-errors.txt
-uploads/qr_codes/*.png
+uploads/qr_codes/
