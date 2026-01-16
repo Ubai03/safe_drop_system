@@ -2,14 +2,58 @@
 header('Content-Type: application/json');
 include("to_connect.php");
 
+// ---- TOTP (Google Authenticator) helpers ----
+function base32Decode($base32) {
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $base32 = strtoupper($base32);
+    $binary = '';
+    foreach (str_split($base32) as $char) {
+        $pos = strpos($alphabet, $char);
+        if ($pos === false) continue;
+        $binary .= str_pad(decbin($pos), 5, '0', STR_PAD_LEFT);
+    }
+    $bytes = '';
+    foreach (str_split($binary, 8) as $byte) {
+        if (strlen($byte) === 8) {
+            $bytes .= chr(bindec($byte));
+        }
+    }
+    return $bytes;
+}
+
+function verifyTOTP($secret, $code, $window = 1) {
+    if (!preg_match('/^\d{6}$/', $code)) return false;
+
+    $secretKey = base32Decode($secret);
+    $time = floor(time() / 30);
+
+    for ($i = -$window; $i <= $window; $i++) {
+        $counter = pack('N*', 0) . pack('N*', $time + $i);
+        $hash = hash_hmac('sha1', $counter, $secretKey, true);
+        $offset = ord(substr($hash, -1)) & 0x0F;
+        $truncated =
+            ((ord($hash[$offset]) & 0x7F) << 24) |
+            ((ord($hash[$offset + 1]) & 0xFF) << 16) |
+            ((ord($hash[$offset + 2]) & 0xFF) << 8) |
+            (ord($hash[$offset + 3]) & 0xFF);
+        $otp = $truncated % 1000000;
+
+        if (str_pad($otp, 6, '0', STR_PAD_LEFT) === $code) {
+            return true;
+        }
+    }
+    return false;
+}
+
 $input = json_decode(file_get_contents("php://input"), true);
 
 $recipient_id = intval($input['recipient_id'] ?? 0);
 $token        = $conn->real_escape_string($input['token'] ?? '');
-$qr_code      = $conn->real_escape_string($input['qr_code'] ?? '');
-$last_digits  = $conn->real_escape_string($input['last_digits'] ?? '');
+/*$qr_code      = $conn->real_escape_string($input['qr_code'] ?? '');
+$last_digits  = $conn->real_escape_string($input['last_digits'] ?? '');*/
+$otp = $conn->real_escape_string($input['otp'] ?? '');
 
-if (!$recipient_id || !$token || !$qr_code || !$last_digits) {
+if (!$recipient_id || !$token || !$otp) {
     echo json_encode(["status" => "error", "message" => "Missing required fields."]);
     exit;
 }
@@ -21,6 +65,15 @@ if (!$result || mysqli_num_rows($result) === 0) {
     echo json_encode(["status" => "error", "message" => "Invalid or expired tracking link."]);
     exit;
 }
+
+$tracking = mysqli_fetch_assoc($result);
+
+if (empty($tracking['totp_secret'])) {
+    echo json_encode(["status" => "error", "message" => "Authenticator not set."]);
+    exit;
+}
+
+$totp_secret = $tracking['totp_secret'];
 
 // 2. Check if recipient is locked (pending or rejected)
 $lock_query = "
@@ -43,7 +96,7 @@ if ($lock_result && mysqli_num_rows($lock_result) > 0) {
 }
 
 // 3. Get recipient phone
-$recipient_query = "SELECT no_tel FROM recipient WHERE recipient_id='$recipient_id' LIMIT 1";
+/*$recipient_query = "SELECT no_tel FROM recipient WHERE recipient_id='$recipient_id' LIMIT 1";
 $recipient_result = mysqli_query($conn, $recipient_query);
 if (!$recipient_result || mysqli_num_rows($recipient_result) === 0) {
     echo json_encode(["status" => "error", "message" => "Recipient not found."]);
@@ -51,7 +104,7 @@ if (!$recipient_result || mysqli_num_rows($recipient_result) === 0) {
 }
 $recipient = mysqli_fetch_assoc($recipient_result);
 $phone = preg_replace('/\D/', '', $recipient['no_tel']);
-$real_last_4 = substr($phone, -4);
+$real_last_4 = substr($phone, -4);*/
 
 // 4. Get last recorded remaining attempts
 $attempt_query = "
@@ -96,7 +149,7 @@ if ($approval_result && mysqli_num_rows($approval_result) > 0) {
 
 
 // 6. Handle password check
-if ($real_last_4 === $last_digits) {
+if (verifyTOTP($totp_secret, $otp)) {
     // CORRECT PASSWORD
     mysqli_query($conn, "
         UPDATE tbl_controller 

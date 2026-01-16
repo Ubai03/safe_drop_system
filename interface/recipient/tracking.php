@@ -454,13 +454,38 @@ window.addEventListener('load', async () => {
               verifyMsg.innerText = "Enter a valid 6-digit code.";
               return;
           }
+          msg.style.color = "#555";
+          msg.innerText = "Verifying...";
 
-          verifyMsg.style.color = "green";
-          verifyMsg.innerText = "OTP entered. Verification will be added next.";
+          fetch("../../database/verify_qr.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  recipient_id: recipientId,
+                  token: token,
+                  otp: otp
+              })
+          })
+          .then(res => res.json())
+          .then(data => {
+              if (data.status === "success") {
+                  msg.style.color = "green";
+                  msg.innerText = data.message;
+                  setTimeout(() => location.reload(), 1500);
+              } else {
+                  msg.style.color = "red";
+                  msg.innerText = data.message;
+              }
+          })
+          .catch(err => {
+              console.error(err);
+              msg.style.color = "red";
+              msg.innerText = "Verification error.";
+          });
       });
   }
 
-  let html5QrCode;
+  //let html5QrCode;
 
   // When user clicks Start Scan
   startScanBtn.addEventListener('click', () => {
@@ -551,8 +576,7 @@ window.addEventListener('load', async () => {
       body: JSON.stringify({
         recipient_id: recipientId,
         token: token,
-        qr_code: qrValue,
-        last_digits: digits
+        otp: document.getElementById("otpCode").value.trim()
       })
     })
     .then(res => res.json())
