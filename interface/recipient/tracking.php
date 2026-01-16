@@ -199,7 +199,14 @@ $lng = $parcel['parcel_long'];
                         <p>When your parcel arrives, scan the QR code on the box to confirm delivery.</p>-->
                         <p>Scan this QR using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
                         <img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">
-                        <button id="startScan" class="btn btn-success"><i class="fas fa-camera"></i> Start Scan</button>
+                        <button id="startScan" class="btn btn-success" disabled><i class="fas fa-key"></i> Enter 6-digit Code</button>
+                        <div id="otpSection" style="display:none; margin-top:15px;">
+                          <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
+                          <button class="btn btn-primary mt-2" id="verifyOtpBtn">
+                              Verify Code
+                          </button>
+                          <p id="verifyMessage" style="margin-top:10px; font-weight:bold;"></p>
+                        </div>
                         <div id="reader" style="width: 320px; margin: 20px auto; display:none;"></div>
                         <p id="scanResult" style="font-weight:bold; color:#854643; margin-top:15px;"></p>
                     </div>
@@ -361,7 +368,7 @@ async function checkGeofenceAndStatus() {
       btn.disabled = false;
       btn.classList.remove("btn-secondary");
       btn.classList.add("btn-success");
-      btn.innerHTML = "<i class='fas fa-camera'></i> Start Scan ( In Range)";
+      btn.innerHTML = "<i class='fas fa-key'></i> Enter 6-digit code ( In Range)";
     } else {
       btn.disabled = true;
       btn.classList.remove("btn-success");
@@ -436,21 +443,38 @@ window.addEventListener('load', async () => {
   const verifyMsg = document.getElementById('verifyMessage');
   const confirmBtn = document.getElementById('confirmVerify');
   const cancelBtn = document.getElementById('cancelVerify');
+  const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+
+  if (verifyOtpBtn) {
+      verifyOtpBtn.addEventListener("click", () => {
+          const otp = document.getElementById("otpCode").value.trim();
+
+          if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+              verifyMsg.style.color = "red";
+              verifyMsg.innerText = "Enter a valid 6-digit code.";
+              return;
+          }
+
+          verifyMsg.style.color = "green";
+          verifyMsg.innerText = "OTP entered. Verification will be added next.";
+      });
+  }
+
   let html5QrCode;
 
   // When user clicks Start Scan
-  startScanBtn.addEventListener('click', async () => {
-    readerDiv.style.display = 'block';
+  startScanBtn.addEventListener('click', () => {
+    // Button is already geofence-controlled
+    document.getElementById("otpSection").style.display = "block";
     startScanBtn.disabled = true;
-    scanResult.innerText = "🎥 Initializing camera...";
 
     // Check if library loaded
-    if (typeof Html5Qrcode === "undefined") {
+    /*if (typeof Html5Qrcode === "undefined") {
       scanResult.innerText = "❌ QR library failed to load.";
       return;
-    }
+    }*/
 
-    html5QrCode = new Html5Qrcode("reader");
+    /*html5QrCode = new Html5Qrcode("reader");
 
     try {
       // Try both cameras (user → environment)
@@ -492,7 +516,7 @@ window.addEventListener('load', async () => {
         scanResult.innerText = "❌ Camera error: " + err2.message;
         startScanBtn.disabled = false;
       }
-    }
+    }*/
   });
 
   cancelBtn.onclick = () => {
