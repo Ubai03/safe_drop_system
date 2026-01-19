@@ -213,8 +213,6 @@ $lng = $parcel['parcel_long'];
                 </div>
             </div>
 
-            
-
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
@@ -227,15 +225,15 @@ $lng = $parcel['parcel_long'];
     </div>
 
     <!-- Password Modal -->
-    <div id="verifyModal" class="modal" tabindex="-1" style="display:none;">
+    <!--<div id="verifyModal" class="modal" tabindex="-1" style="display:none;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-lock"></i> Verification Required</h5>
                 </div>
                 <div class="modal-body text-center">
-                    <!--<p>Enter the password.</p>
-                    <input type="password" id="phoneDigits" maxlength="4" class="form-control text-center" placeholder="1234" style="width:120px; margin:auto;">-->
+                    <p>Enter the password.</p>
+                    <input type="password" id="phoneDigits" maxlength="4" class="form-control text-center" placeholder="1234" style="width:120px; margin:auto;">
                     <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
                     <p id="attempt_message" style="margin-top:10px; color:#555; font-weight:bold;"></p>
                     <p id="verifyMessage" style="margin-top:10px; color:red; font-weight:bold;"></p>
@@ -246,7 +244,7 @@ $lng = $parcel['parcel_long'];
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
 
 <!-- Fix for browser autoplay issues -->
 <style>
@@ -436,12 +434,12 @@ window.addEventListener('load', async () => {
   const recipientId = "<?php echo $recipient_id; ?>";
   const token = "<?php echo $token; ?>";
   const startScanBtn = document.getElementById('startScan');
-  const readerDiv = document.getElementById('reader');
-  const scanResult = document.getElementById('scanResult');
+  //const readerDiv = document.getElementById('reader');
+  //const scanResult = document.getElementById('scanResult');
   const modal = document.getElementById('verifyModal');
-  const phoneInput = document.getElementById('phoneDigits');
+  //const phoneInput = document.getElementById('phoneDigits');
   const verifyMsg = document.getElementById('verifyMessage');
-  const confirmBtn = document.getElementById('confirmVerify');
+  //const confirmBtn = document.getElementById('confirmVerify');
   const cancelBtn = document.getElementById('cancelVerify');
   const verifyOtpBtn = document.getElementById("verifyOtpBtn");
 
@@ -454,8 +452,8 @@ window.addEventListener('load', async () => {
               verifyMsg.innerText = "Enter a valid 6-digit code.";
               return;
           }
-          msg.style.color = "#555";
-          msg.innerText = "Verifying...";
+          verifyMsg.style.color = "#555";
+          verifyMsg.innerText = "Verifying...";
 
           fetch("../../database/verify_qr.php", {
               method: "POST",
@@ -469,18 +467,18 @@ window.addEventListener('load', async () => {
           .then(res => res.json())
           .then(data => {
               if (data.status === "success") {
-                  msg.style.color = "green";
-                  msg.innerText = data.message;
+                  verifyMsg.style.color = "green";
+                  verifyMsg.innerText = data.message;
                   setTimeout(() => location.reload(), 1500);
               } else {
-                  msg.style.color = "red";
-                  msg.innerText = data.message;
+                  verifyMsg.style.color = "red";
+                  verifyMsg.innerText = data.message;
               }
           })
           .catch(err => {
               console.error(err);
-              msg.style.color = "red";
-              msg.innerText = "Verification error.";
+              verifyMsg.style.color = "red";
+              verifyMsg.innerText = "Verification error.";
           });
       });
   }
@@ -544,14 +542,14 @@ window.addEventListener('load', async () => {
     }*/
   });
 
-  cancelBtn.onclick = () => {
+  /*cancelBtn.onclick = () => {
     modal.style.display = 'none';
     phoneInput.value = "";
     verifyMsg.innerHTML = "";
     startScanBtn.disabled = false;
-  };
+  };*/
 
-  function verifyOtp() {
+ /* function verifyOtp() {
     const otp = document.getElementById("otpCode").value.trim();
 
     if (otp.length !== 6) {
@@ -561,9 +559,9 @@ window.addEventListener('load', async () => {
 
     verifyMsg.style.color = "blue";
     verifyMsg.innerHTML = "OTP entered. Verification will be implemented next.";
-}
+}*/
 
-  function verifyCode(qrValue) {
+ /* function verifyCode(qrValue) {
     const digits = phoneInput.value.trim();
     if (digits.length !== 4) {
       verifyMsg.innerHTML = "Enter last 4 digits!";
@@ -594,7 +592,7 @@ window.addEventListener('load', async () => {
       verifyMsg.innerHTML = "Error verifying.";
       console.error(err);
     });
-  }
+  }*/
 });
 </script>
 
