@@ -111,7 +111,7 @@
             });
         }
 
-        function updateValueAndShowModal(stafft_id) {
+        function updateValueAndShowModal(recipient_id) {
             $.ajax({
                 url: 'update_value_delete.php', // Your PHP file for database update
                 type: 'POST',
@@ -469,6 +469,7 @@
                                             <th>Longitude</th>
                                             <th>Latitude</th>
                                             <th>QR Code</th>
+                                            <th>Action</th>
                                         </tr>          
                                     </thead>
                                     <tbody>
@@ -518,7 +519,16 @@
                                                     <span style="color:gray;">No QR</span>
                                                 <?php endif; ?>
                                             </td>
-
+                                            <!-- DELETE BUTTON COLUMN (ADD THIS) -->
+                                            <td style="text-align:center">
+                                                <button 
+                                                    class="btn btn-danger btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#deleteModalCenter<?php echo $recipient_id; ?>"
+                                                    onclick="updateValueAndShowModal(<?php echo $recipient_id; ?>)">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </td>        
                                         </tr>
                                         <!-- Start Edit Modal -->
                                         <div class="modal fade" id="editModalCenter<?php echo $recipient_id;?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
