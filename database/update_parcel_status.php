@@ -19,7 +19,7 @@ $status = $controller['status'];
 $user_verify = $controller['user_verify'];
 
 // 2. Verify presence
-if ($lat === NULL || $long === NULL || empty($status)) {
+if ($lat === NULL || $long === NULL) {
     echo json_encode(["status" => "error", "message" => "Missing data", "debug" => $controller]);
     exit;
 }
