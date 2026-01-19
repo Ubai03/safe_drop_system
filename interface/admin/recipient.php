@@ -519,7 +519,7 @@
                                                     <span style="color:gray;">No QR</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <!-- DELETE BUTTON COLUMN (ADD THIS) -->
+                                            <!-- DELETE BUTTON COLUMN -->
                                             <td style="text-align:center">
                                                 <button 
                                                     class="btn btn-danger btn-sm"
