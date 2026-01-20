@@ -45,7 +45,7 @@ $result = mysqli_query($conn, $query);
 if (!$result || mysqli_num_rows($result) === 0) {
     die("<h3 style='color:red;'>Invalid or expired token.</h3>");
 }
-
+//QR code generator
 $tracking = mysqli_fetch_assoc($result);
 
 if (empty($tracking['totp_secret'])) {
