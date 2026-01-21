@@ -317,8 +317,9 @@ async function updateParcelLocation() {
 
       // Optional: detect if parcel reached destination
       const dist = getDistance(newLat, newLng, destLat, destLng);
-      if (newLat.toFixed(6) === destLat.toFixed(6) && newLng.toFixed(6) === destLng.toFixed(6)) {
-          parcelMarker.bindPopup("📦 Parcel has arrived!").openPopup();
+      console.log("Distance to destination:", dist.toFixed(2), "km");
+      if (dist <= 30) { // 5 km radius
+        parcelMarker.bindPopup("📦 Parcel is within 30 km of destination!").openPopup();
       }
     }
   } catch (err) {
