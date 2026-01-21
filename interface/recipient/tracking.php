@@ -45,7 +45,7 @@ $result = mysqli_query($conn, $query);
 if (!$result || mysqli_num_rows($result) === 0) {
     die("<h3 style='color:red;'>Invalid or expired token.</h3>");
 }
-//QR code generator
+
 $tracking = mysqli_fetch_assoc($result);
 
 if (empty($tracking['totp_secret'])) {
@@ -317,9 +317,8 @@ async function updateParcelLocation() {
 
       // Optional: detect if parcel reached destination
       const dist = getDistance(newLat, newLng, destLat, destLng);
-      console.log("Distance to destination:", dist.toFixed(2), "km");
-      if (dist <= 30) { // 5 km radius
-        parcelMarker.bindPopup("📦 Parcel is within 30 km of destination!").openPopup();
+      if (newLat.toFixed(6) === destLat.toFixed(6) && newLng.toFixed(6) === destLng.toFixed(6)) {
+          parcelMarker.bindPopup("📦 Parcel has arrived!").openPopup();
       }
     }
   } catch (err) {

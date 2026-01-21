@@ -71,7 +71,7 @@ $rec_row = mysqli_fetch_assoc($rec_coords);
 $distance = haversine($lat, $long, $rec_row['latitude'], $rec_row['longitude']);
 
 // Update geofence status automatically
-if ($distance <= 15000) { // within 10 meters
+if ($distance <= 10) { // within 10 meters
     mysqli_query($conn, "UPDATE tbl_controller SET geofence_status = 1");
 } else {
     mysqli_query($conn, "UPDATE tbl_controller SET geofence_status = 0");

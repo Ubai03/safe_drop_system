@@ -1,4 +1,4 @@
 phpqrcode/*.txt
 phpqrcode/*-errors.txt
 uploads/qr_codes/
-recipient/uploads/qr_codes/
+interface/uploads/qr_codes/
