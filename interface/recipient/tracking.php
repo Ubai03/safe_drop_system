@@ -197,8 +197,8 @@ $lng = $parcel['parcel_long'];
                     <div class="card-body">
                         <!--<h5><i class="fas fa-qrcode"></i> Scan Parcel QR Code</h5>
                         <p>When your parcel arrives, scan the QR code on the box to confirm delivery.</p>-->
-                        <p>Scan this QR using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
-                        <img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">
+                        <p>Scan the QR on the box using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
+                        <!--<img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">-->
                         <button id="startScan" class="btn btn-success" disabled><i class="fas fa-key"></i> Enter 6-digit Code</button>
                         <div id="otpSection" style="display:none; margin-top:15px;">
                           <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
