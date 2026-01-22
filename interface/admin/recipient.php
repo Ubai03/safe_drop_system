@@ -3,9 +3,9 @@
 <!-- session start -->
 <?php
     session_start();
-
+    
     include("../../database/to_connect.php"); 
-
+    require_once "../../phpqrcode/qrlib.php";
     // Automatically regenerate expired QR codes once per page load
     @include("../../database/auto_regenerate_qr.php");
 
@@ -474,23 +474,60 @@
                                     </thead>
                                     <tbody>
                                         <?php 
-                                            $query = "SELECT r.*, q.qr_value, q.generated_at
-                                                      FROM recipient r
-                                                      LEFT JOIN qr_code q ON r.recipient_id = q.recipient_id
-                                                      ORDER BY r.recipient_id ASC";
-                                            $result = mysqli_query($conn, $query);
-                                                
-                                            if (mysqli_num_rows($result) > 0){
-                                                while($row = mysqli_fetch_assoc($result)) { 
-                                                    $recipient_id = $row["recipient_id"];
-                                                    $name = $row["name"];
-                                                    $email = $row["email"];
-                                                    $no_tel = $row["no_tel"];
-                                                    $location = $row["location"];
-                                                    $longitude = $row["longitude"];
-                                                    $latitude = $row["latitude"];
-                                        
+                                        $query = "SELECT r.*, q.qr_value, q.generated_at
+                                                FROM recipient r
+                                                LEFT JOIN qr_code q ON r.recipient_id = q.recipient_id
+                                                ORDER BY r.recipient_id ASC";
+                                        $result = mysqli_query($conn, $query);
 
+                                        if (mysqli_num_rows($result) > 0){
+                                            while($row = mysqli_fetch_assoc($result)) { 
+
+                                                $recipient_id = $row["recipient_id"];
+
+                                                // ===== Google Authenticator QR (ADMIN DOWNLOAD) =====
+                                                $secretQuery = mysqli_query(
+                                                    $conn,
+                                                    "SELECT totp_secret 
+                                                    FROM tracking_links 
+                                                    WHERE recipient_id = '$recipient_id'
+                                                    ORDER BY created_at DESC 
+                                                    LIMIT 1"
+                                                );
+
+                                                $secretRow = mysqli_fetch_assoc($secretQuery);
+                                                $totp_secret = $secretRow['totp_secret'] ?? null;
+
+                                                $gaQrPath = null;
+
+                                                if ($totp_secret) {
+                                                    $issuer = "SafeDrop";
+                                                    $label  = "SafeDrop:Recipient_" . $recipient_id;
+
+                                                    $otpAuthUri = "otpauth://totp/" . urlencode($label)
+                                                        . "?secret=" . $totp_secret
+                                                        . "&issuer=" . urlencode($issuer);
+
+                                                    $qrDir = "../uploads/qr_codes/";
+                                                    if (!is_dir($qrDir)) {
+                                                        mkdir($qrDir, 0777, true);
+                                                    }
+
+                                                    $gaQrFile = "ga_recipient_" . $recipient_id . ".png";
+                                                    $gaQrPath = $qrDir . $gaQrFile;
+
+                                                    if (!file_exists($gaQrPath)) {
+                                                        QRcode::png($otpAuthUri, $gaQrPath, QR_ECLEVEL_L, 6);
+                                                    }
+                                                }
+
+                                                // Existing fields
+                                                $name = $row["name"];
+                                                $email = $row["email"];
+                                                $no_tel = $row["no_tel"];
+                                                $location = $row["location"];
+                                                $longitude = $row["longitude"];
+                                                $latitude = $row["latitude"];
                                         ?>
                                         <tr>
                                             <td id="text-center"><?php echo $row["recipient_id"]; ?></td>
@@ -501,22 +538,14 @@
                                             <td id="text-center"><?php echo $row["longitude"]; ?></td>
                                             <td id="text-center"><?php echo $row["latitude"]; ?></td>
                                             <td style="text-align: center">
-                                                <?php
-                                                // QR file path
-                                                $qrPath = "../../" . $row["qr_value"]; // correct relative path for download
-                                                $absolutePath = __DIR__ . "/../../" . $row["qr_value"]; // correct filesystem path
-
-                                                $fileExists = !empty($row["qr_value"]) && file_exists($absolutePath);
-                                                ?>
-
-                                                <?php if (!empty($qrPath) && file_exists(__DIR__ . "/" . $qrPath)): ?>
-                                                    <a href="<?php echo $qrPath; ?>" download 
-                                                        class="btn btn-success d-flex align-items-center justify-content-center shadow-sm" style="width:150px; border-radius: 8px; font-weight: 600; transition: all 0.2s;">
-                                                            <i class="fas fa-download"></i> Download QR
+                                                <?php if ($gaQrPath && file_exists($gaQrPath)): ?>
+                                                    <a href="<?php echo htmlspecialchars($gaQrPath); ?>" download
+                                                        class="btn btn-success d-flex align-items-center justify-content-center shadow-sm"
+                                                        style="width:180px; border-radius: 8px; font-weight: 600;">
+                                                        <i class="fas fa-download"></i> Authenticator QR
                                                     </a>
-
                                                 <?php else: ?>
-                                                    <span style="color:gray;">No QR</span>
+                                                    <span style="color:gray;">No Authenticator QR</span>
                                                 <?php endif; ?>
                                             </td>
                                             <!-- DELETE BUTTON COLUMN -->
