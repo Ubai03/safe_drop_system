@@ -76,15 +76,15 @@ try {
     // --- Configure PHPMailer (using Mailtrap for local testing) ---
     $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host       = 'sandbox.smtp.mailtrap.io';
+    $mail->Host       = 'owesems.mbrainsolutions.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = '186359ececc29a'; // ← your Mailtrap username
-    $mail->Password   = 'e6844e214b74c9'; // ← your Mailtrap password
-    $mail->Port       = 2525;
+    $mail->Username   = 'admin@owesems.mbrainsolutions.com'; // ← your Mailtrap username
+    $mail->Password   = '-T9_{~4cqiD^'; // ← your Mailtrap password
+    $mail->Port       = 587;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->SMTPDebug  = 0;
 
-    $mail->setFrom('safedrop12@gmail.com', 'SafeDrop');
+    $mail->setFrom('admin@owesems.mbrainsolutions.com', 'SafeDrop');
     $mail->addAddress($recipient['email'], $recipient['name']);
     $mail->isHTML(true);
     $mail->Subject = 'Your Parcel is on the Way!';
