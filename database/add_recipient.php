@@ -43,8 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_query($conn, "
                         UPDATE tbl_controller 
                         SET status = 'Delivery',
-                            user_verify = 0,
-                            geofence_status = 0
+                            user_verify = 0
         ");
     }
 

@@ -70,14 +70,6 @@ $rec_row = mysqli_fetch_assoc($rec_coords);
 
 $distance = haversine($lat, $long, $rec_row['latitude'], $rec_row['longitude']);
 
-// Update geofence status automatically
-if ($distance <= 10) { // within 10 meters
-    mysqli_query($conn, "UPDATE tbl_controller SET geofence_status = 1");
-} else {
-    mysqli_query($conn, "UPDATE tbl_controller SET geofence_status = 0");
-}
-
-
 $parcel_status = ($user_verify == 1) ? 'Delivered' : 'Delivery';
 
 // 4. Update or insert parcel_log
@@ -112,7 +104,6 @@ if ($user_verify == 1) {
         UPDATE tbl_controller 
         SET parcel_lat=NULL,
             parcel_long=NULL,
-            geofence_status=NULL,
             user_verify=NULL,
             status=NULL
     ");
