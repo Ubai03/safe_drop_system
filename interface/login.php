@@ -119,6 +119,10 @@
                                         <div class="form-group">
                                             <input type="password" class="form-control" name="password" placeholder="Password" required>
                                         </div>
+                                        <div class="captcha-wrapper">
+                                            <div class="h-captcha" data-sitekey="32b6e35a-dcb6-4624-bdda-10beb12c29d4"></div>
+                                            <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+                                        </div>
                                         <button type="submit" class="btn btn-user btn-block" id="loginButton">
                                             LOGIN
                                         </button>
