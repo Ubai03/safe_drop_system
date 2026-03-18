@@ -59,3 +59,20 @@
 #formTable {
     margin: auto;
 }
+
+/* Center and align captcha */
+.captcha-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Optional: match input spacing */
+.form-group .captcha-wrapper {
+    margin-bottom: 15px;
+}
+
+.h-captcha {
+    transform: scale(0.95);
+    transform-origin: center;
+}

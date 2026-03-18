@@ -184,7 +184,7 @@
 
                     <ul class="navbar-nav ml-auto">
 
-                         <li class="nav-item topbar-icon dropdown hidden-caret" style="position:relative;">
+                        <!--<li class="nav-item topbar-icon dropdown hidden-caret" style="position:relative;">
                             <a class="nav-link dropdown-toggle" id="notifDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-fw fa-bell" style="color: #FFD700;"></i>
                                 <span class="notification" id="count_noti"></span>
@@ -201,7 +201,7 @@
                                     </div>
                                 </li>
                             </ul>
-                        </li>
+                        </li>-->
 
 
                         <div class="topbar-divider d-none d-sm-block"></div>
