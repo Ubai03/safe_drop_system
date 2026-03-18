@@ -118,7 +118,7 @@
                                         <div class="captcha-wrapper">
                                             <div class="h-captcha" data-sitekey="32b6e35a-dcb6-4624-bdda-10beb12c29d4"></div>
                                             <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-                                        </div>
+                                        </div>  
                                         <button type="submit" class="btn btn-user btn-block" id="loginButton">
                                             LOGIN
                                         </button>

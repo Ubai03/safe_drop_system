@@ -2,3 +2,6 @@ phpqrcode/*.txt
 phpqrcode/*-errors.txt
 uploads/qr_codes/
 interface/uploads/qr_codes/
+.env
+.env.local
+.env.*.local
