@@ -182,7 +182,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="index.php" id="sidebar">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Dashboard</span></a>
@@ -193,6 +193,12 @@
                     <i class="fas fa-fw fa-user"></i>
                     <span>Recipient</span>
                 </a>
+            </li>
+
+            <li class="nav-item active">
+                <a class="nav-link" href="courier.php" id="sidebar">
+                    <i class="fas fa-fw fa-user" style="color: white;"></i>
+                    <span>Courier</span></a>
             </li>
 
             <li class="nav-item active">
@@ -350,9 +356,7 @@
                         <a class="btn submitBtn" id="updateValBtn" data-toggle="modal" data-target="#addModalCenter">
                             <i class="fas fa-fw fa-user"></i> Add Recipient
                         </a>
-
                     </div>
-
 
                     <!-- Start Delete All Modal -->
                     <div class="modal fade" id="deleteAllModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -609,10 +613,6 @@
                         </div>
                     </div>
                 
-
-                </div>
-                <!-- /.container-fluid -->
-
             </div>
             <!-- End of Main Content -->
 
