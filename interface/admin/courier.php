@@ -256,7 +256,69 @@
                 </div>
                 </div>
                 <!-- End Logout Modal -->
-                
+                <!-- Add Courier Modal -->
+                <div class="modal fade" id="addModalCenter" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+
+                            <form action="../../database/add_courier.php" method="POST">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-user-plus"></i> Add Courier
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="form-group">
+                                        <label>Username</label>
+                                        <input type="text" name="username" class="form-control" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Phone Number</label>
+                                        <input type="text" name="phone" class="form-control" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Password</label>
+                                        <input type="password" name="password" class="form-control" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Vehicle Type</label>
+                                        <select name="vehicle_type" class="form-control" required>
+                                            <option value="">-- Select --</option>
+                                            <option value="Motorbike">Motorbike</option>
+                                            <option value="Car">Car</option>
+                                            <option value="Van">Van</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Plate Number</label>
+                                        <input type="text" name="vehicle_plate" class="form-control" required>
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn notiClose" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn notiConfirm">Add</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
                     <!-- Page Heading -->
@@ -279,14 +341,47 @@
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="color: black;">
                                 <thead style="text-align:center">
                                     <tr>
-                                        <th>ID</th>
                                         <th>Name</th>
                                         <th>Phone No.</th>
                                         <th>Vehicle</th>
                                         <th>No. Plate</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>          
                                 </thead>
+
+                                <tbody>
+                                    <?php
+                                    include("../../database/to_connect.php");
+
+                                    $query = "SELECT * FROM user WHERE role='courier'";
+                                    $result = mysqli_query($conn, $query);
+
+                                    while($row = mysqli_fetch_assoc($result)) {
+                                    ?>
+                                    <tr style="text-align:center">
+                                        <td><?php echo $row['name']; ?></td>
+                                        <td><?php echo $row['phone']; ?></td>
+                                        <td><?php echo $row['vehicle_type']; ?></td>
+                                        <td><?php echo $row['vehicle_plate']; ?></td>
+                                        <td>
+                                            <?php
+                                                if($row['status'] == 'available'){
+                                                    echo "<span class='badge badge-success'>Available</span>";
+                                                } elseif($row['status'] == 'busy'){
+                                                    echo "<span class='badge badge-warning'>Busy</span>";
+                                                } else {
+                                                    echo "<span class='badge badge-secondary'>Offline</span>";
+                                                }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary">Edit</button>
+                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -309,5 +404,10 @@
 
     </div>
 <script src="../../javascript.js"></script>
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable();
+});
+</script>
 </body>
 </html>
