@@ -6,6 +6,7 @@
 
     include("../../database/to_connect.php"); 
 
+    require_once "../../phpqrcode/qrlib.php";
     // Automatically regenerate expired QR codes once per page load
     @include("../../database/auto_regenerate_qr.php");
 
@@ -493,8 +494,6 @@
                                                     $location = $row["location"];
                                                     $longitude = $row["longitude"];
                                                     $latitude = $row["latitude"];
-                                        
-
                                         ?>
                                         <tr>
                                             <td id="text-center"><?php echo $row["recipient_id"]; ?></td>
