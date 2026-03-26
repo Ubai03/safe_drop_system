@@ -94,6 +94,7 @@ $lng = $parcel['parcel_long'];
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SafeDrop Parcel Tracker</title>
     <link rel="icon" href="../../css/pictures/safeDrop_logo.png">
 
@@ -126,6 +127,30 @@ $lng = $parcel['parcel_long'];
             background: #000;
             display: none; /* default hidden */
         }
+        @media (max-width: 768px) {
+            #map {
+                height: 45vh;
+                min-height: 300px;
+            }
+            #otpCode {
+                width: 120px !important;
+                font-size: 18px;
+            }
+            img[alt="Google Authenticator QR"] {
+                width: 150px !important;
+            }
+            h3#title {
+                font-size: 20px;
+                text-align: center;
+            }
+            #accordionSidebar {
+                display: none;
+            }
+            #sidebarToggleTop{
+                display: none !important;
+
+            }
+        }
     </style>
 </head>
 <body id="page-top">
@@ -149,7 +174,6 @@ $lng = $parcel['parcel_long'];
             </li>
             <hr class="sidebar-divider my-0">
         </ul>
-        <!-- End Sidebar -->
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
@@ -158,9 +182,8 @@ $lng = $parcel['parcel_long'];
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-                    <h5 class="h5 mb-0" style="color: white; font-weight: bold;">Welcome!</h5>
+                    <h5 class="h5 mb-0" style="color: white; font-weight: bold;">Safe Drop System</h5>
                 </nav>
-                <!-- End Topbar -->
                 <!-- Page Content -->
                 <div class="container-fluid">
                     <h3 class="h3 mb-3 text-900" id="title">
