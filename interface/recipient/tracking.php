@@ -11,13 +11,6 @@ if (!$recipient_id || !$token) {
     die("<h3 style='color:red;'>Invalid tracking link.</h3>");
 }
 
-// Verify token
-//$query = "SELECT * FROM tracking_links WHERE recipient_id='$recipient_id' AND token='$token'";
-//$result = mysqli_query($conn, $query);
-//if (!$result || mysqli_num_rows($result) === 0) {
-    //die("<h3 style='color:red;'>Invalid or expired token.</h3>");
-//}
-
 // 1. Check latest parcel status
 $parcelStatusQuery = "
     SELECT status 
@@ -97,7 +90,6 @@ $parcel = mysqli_fetch_assoc($parcel_result);
 $lat = $parcel['parcel_lat'];
 $lng = $parcel['parcel_long'];
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,7 +119,6 @@ $lng = $parcel['parcel_long'];
         .leaflet-popup-content {
             font-size: 14px;
         }
-
         #reader {
             width: 320px;
             height: 240px;
@@ -135,13 +126,10 @@ $lng = $parcel['parcel_long'];
             background: #000;
             display: none; /* default hidden */
         }
-
     </style>
 </head>
-
 <body id="page-top">
     <div id="wrapper">
-
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
             <br>
@@ -151,25 +139,20 @@ $lng = $parcel['parcel_long'];
                     <br><br>
                 </div>
             </a>
-
             <br><br>
             <hr class="sidebar-divider my-0">
-
             <li class="nav-item active">
                 <a class="nav-link" href="#" id="sidebar" style="background-color:#854643; font-weight:bold;">
                     <i class="fas fa-fw fa-map"></i>
                     <span>Map</span>
                 </a>
             </li>
-
             <hr class="sidebar-divider my-0">
         </ul>
         <!-- End Sidebar -->
-
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -178,28 +161,23 @@ $lng = $parcel['parcel_long'];
                     <h5 class="h5 mb-0" style="color: white; font-weight: bold;">Welcome!</h5>
                 </nav>
                 <!-- End Topbar -->
-
                 <!-- Page Content -->
                 <div class="container-fluid">
                     <h3 class="h3 mb-3 text-900" id="title">
                         <strong><i class="fas fa-fw fa-map-marked-alt"></i> Parcel Tracker</strong>
                     </h3>
-
                     <div class="card shadow mb-4">
                         <div class="card-body">
                             <div id="map"></div>
                         </div>
                     </div>
                 </div>
-
                 <!-- QR Scanner Section -->
                 <div class="card shadow mb-4 text-center">
                     <div class="card-body">
-                        <!--<h5><i class="fas fa-qrcode"></i> Scan Parcel QR Code</h5>
-                        <p>When your parcel arrives, scan the QR code on the box to confirm delivery.</p>-->
                         <p>Scan this QR using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
                         <img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">
-                        <button id="startScan" class="btn btn-success" disabled><i class="fas fa-key"></i> Enter 6-digit Code</button>
+                        <button id="startScan" class="btn btn-success"><i class="fas fa-key"></i> Enter 6-digit Code</button>
                         <div id="otpSection" style="display:none; margin-top:15px;">
                           <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
                           <button class="btn btn-primary mt-2" id="verifyOtpBtn">
@@ -212,7 +190,6 @@ $lng = $parcel['parcel_long'];
                     </div>
                 </div>
             </div>
-
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
@@ -223,28 +200,6 @@ $lng = $parcel['parcel_long'];
             </footer>
         </div>
     </div>
-
-    <!-- Password Modal -->
-    <!--<div id="verifyModal" class="modal" tabindex="-1" style="display:none;">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-lock"></i> Verification Required</h5>
-                </div>
-                <div class="modal-body text-center">
-                    <p>Enter the password.</p>
-                    <input type="password" id="phoneDigits" maxlength="4" class="form-control text-center" placeholder="1234" style="width:120px; margin:auto;">
-                    <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
-                    <p id="attempt_message" style="margin-top:10px; color:#555; font-weight:bold;"></p>
-                    <p id="verifyMessage" style="margin-top:10px; color:red; font-weight:bold;"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelVerify">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="confirmVerify">Verify</button>
-                </div>
-            </div>
-        </div>
-    </div>-->
 
 <!-- Fix for browser autoplay issues -->
 <style>
@@ -282,21 +237,9 @@ const parcelIcon = L.icon({
   shadowSize: [41, 41]
 });
 
-const destIcon = L.icon({
-  iconUrl: "https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-green.png",
-  shadowUrl: "https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
 // Add markers
 let parcelMarker = L.marker([parcelLat, parcelLng], { icon: parcelIcon }).addTo(map)
   .bindPopup("<b>Your Parcel</b><br>Live location update.").openPopup();
-
-L.marker([destLat, destLng], { icon: destIcon }).addTo(map)
-  .bindPopup("<b>Recipient Destination</b><br>" + destLocation);
 
 // Fit bounds so both markers are visible
 map.fitBounds([
@@ -314,117 +257,22 @@ async function updateParcelLocation() {
       const newLng = parseFloat(data.lng);
       parcelMarker.setLatLng([newLat, newLng]);
       map.panTo([newLat, newLng]);
-
-      // Optional: detect if parcel reached destination
-      const dist = getDistance(newLat, newLng, destLat, destLng);
-      if (newLat.toFixed(6) === destLat.toFixed(6) && newLng.toFixed(6) === destLng.toFixed(6)) {
-          parcelMarker.bindPopup("📦 Parcel has arrived!").openPopup();
-      }
     }
   } catch (err) {
     console.error("Error updating parcel location:", err);
   }
 }
 
-// Distance formula (in km)
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
 // Auto-update every 5 seconds
 setInterval(updateParcelLocation, 5000);
-
 // Auto-update every 5 seconds (for parcel marker only)
 setInterval(updateParcelLocation, 5000);
-
-// Add this geofence + status checker right below
-async function checkGeofenceAndStatus() {
-  try {
-    // 1. Call your backend to update parcel + geofence + delivery status
-    const res = await fetch("../../database/update_parcel_status.php");
-    const data = await res.json();
-
-    console.log("📡 Parcel update:", data);
-
-    const btn = document.getElementById("startScan");
-
-    // 2. Optionally fetch the latest geofence status (if your get_parcel_location.php returns it)
-    const geoRes = await fetch("../../database/get_parcel_location.php");
-    const geoData = await geoRes.json();
-
-    // 3. Enable or disable the QR button based on geofence status
-    if (geoData.status === "success" && geoData.geofence_status == 1) {
-      btn.disabled = false;
-      btn.classList.remove("btn-secondary");
-      btn.classList.add("btn-success");
-      btn.innerHTML = "<i class='fas fa-key'></i> Enter 6-digit code ( In Range)";
-    } else {
-      btn.disabled = true;
-      btn.classList.remove("btn-success");
-      btn.classList.add("btn-secondary");
-      btn.innerHTML = "<i class='fas fa-ban'></i> Out of Range (10m)";
-    }
-
-  } catch (e) {
-    console.error("Error checking geofence:", e);
-  }
-}
-
-// Combine both live updates every 5 seconds
-setInterval(() => {
-  updateParcelLocation();     // Move marker
-  checkGeofenceAndStatus();   // Check geofence + button state
-}, 5000);
 </script>
 
 <!-- 2. Load the QR library AFTER the map -->
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<script>
-function openVerificationModal(recipient_id) {
-    $.get('../../database/get_attempt_remaining.php', { recipient_id: recipient_id }, function(response) {
-        const data = JSON.parse(response);
-        let msg = "";
-
-        if (data.status === "success") {
-            if (data.attempt_remaining > 0) {
-                msg = `You have ${data.attempt_remaining} attempt(s) remaining.`;
-            } else {
-                msg = "No attempts left. Please wait for admin approval.";
-            }
-        } else {
-            msg = "Awaiting admin approval for your first verification attempt.";
-        }
-
-        // Display message inside modal
-        $("#attempt_message").text(msg);
-
-        // ✅ Try Bootstrap modal first, fallback to plain display
-        if (typeof $().modal === 'function') {
-            $("#verifyModal").modal("show");
-        } else {
-            document.getElementById("verifyModal").style.display = "block";
-        }
-    });
-}
-</script>
-
-
 
 <!-- 3. Wait until everything is loaded before using Html5Qrcode -->
 <script>
@@ -434,17 +282,13 @@ window.addEventListener('load', async () => {
   const recipientId = "<?php echo $recipient_id; ?>";
   const token = "<?php echo $token; ?>";
   const startScanBtn = document.getElementById('startScan');
-  //const readerDiv = document.getElementById('reader');
-  //const scanResult = document.getElementById('scanResult');
   const modal = document.getElementById('verifyModal');
-  //const phoneInput = document.getElementById('phoneDigits');
   const verifyMsg = document.getElementById('verifyMessage');
-  //const confirmBtn = document.getElementById('confirmVerify');
   const cancelBtn = document.getElementById('cancelVerify');
   const verifyOtpBtn = document.getElementById("verifyOtpBtn");
 
   if (verifyOtpBtn) {
-      verifyOtpBtn.addEventListener("click", () => {
+    verifyOtpBtn.addEventListener("click", () => {
           const otp = document.getElementById("otpCode").value.trim();
 
           if (otp.length !== 6 || !/^\d+$/.test(otp)) {
@@ -483,119 +327,14 @@ window.addEventListener('load', async () => {
       });
   }
 
-  //let html5QrCode;
-
   // When user clicks Start Scan
   startScanBtn.addEventListener('click', () => {
     // Button is already geofence-controlled
     document.getElementById("otpSection").style.display = "block";
     startScanBtn.disabled = true;
-
-    // Check if library loaded
-    /*if (typeof Html5Qrcode === "undefined") {
-      scanResult.innerText = "❌ QR library failed to load.";
-      return;
-    }*/
-
-    /*html5QrCode = new Html5Qrcode("reader");
-
-    try {
-      // Try both cameras (user → environment)
-      scanResult.innerText = "🔍 Starting camera...";
-      await html5QrCode.start(
-        { facingMode: "user" },
-        { fps: 10, qrbox: 250 },
-        qrCodeMessage => {
-          html5QrCode.stop();
-          readerDiv.style.display = 'none';
-          scanResult.innerHTML = `✅ QR Code Scanned: <b>${qrCodeMessage}</b>`;
-           // 🆕 Show modal and fetch attempt info
-          openVerificationModal(recipientId);
-          confirmBtn.onclick = () => verifyOtp();
-        },
-        errorMsg => console.warn("Scanning...", errorMsg)
-      );
-      scanResult.innerText = "📷 Camera started (user)";
-    } catch (err1) {
-      console.warn("Front camera failed:", err1.message);
-      scanResult.innerText = "🔁 Trying back camera...";
-      try {
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          qrCodeMessage => {
-            html5QrCode.stop();
-            readerDiv.style.display = 'none';
-            scanResult.innerHTML = `✅ QR Code Scanned: <b>${qrCodeMessage}</b>`;
-             // 🆕 Show modal and fetch attempt info
-            openVerificationModal(recipientId);
-            confirmBtn.onclick = () => verifyCode(qrCodeMessage);
-          },
-          errorMsg => console.warn("Scanning...", errorMsg)
-        );
-        scanResult.innerText = "📷 Camera started (environment)";
-      } catch (err2) {
-        console.error("Camera failed:", err2);
-        scanResult.innerText = "❌ Camera error: " + err2.message;
-        startScanBtn.disabled = false;
-      }
-    }*/
   });
-
-  /*cancelBtn.onclick = () => {
-    modal.style.display = 'none';
-    phoneInput.value = "";
-    verifyMsg.innerHTML = "";
-    startScanBtn.disabled = false;
-  };*/
-
- /* function verifyOtp() {
-    const otp = document.getElementById("otpCode").value.trim();
-
-    if (otp.length !== 6) {
-        verifyMsg.innerHTML = "Enter 6-digit code.";
-        return;
-    }
-
-    verifyMsg.style.color = "blue";
-    verifyMsg.innerHTML = "OTP entered. Verification will be implemented next.";
-}*/
-
- /* function verifyCode(qrValue) {
-    const digits = phoneInput.value.trim();
-    if (digits.length !== 4) {
-      verifyMsg.innerHTML = "Enter last 4 digits!";
-      return;
-    }
-
-    fetch("../../database/verify_qr.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipient_id: recipientId,
-        token: token,
-        otp: document.getElementById("otpCode").value.trim()
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === "success") {
-        verifyMsg.style.color = "green";
-        verifyMsg.innerHTML = "✅ Verified successfully!";
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        verifyMsg.style.color = "red";
-        verifyMsg.innerHTML = "❌ " + data.message;
-      }
-    })
-    .catch(err => {
-      verifyMsg.innerHTML = "Error verifying.";
-      console.error(err);
-    });
-  }*/
 });
 </script>
-
 <script>
 // Recipient vibration alert every 3 seconds
 setInterval(() => {
@@ -619,8 +358,6 @@ function showVibrationWarning() {
     }
 }
 </script>
-
-
 </body>
 </html>
 

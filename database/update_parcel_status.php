@@ -52,23 +52,9 @@ if (!$rec) {
 
 $recipient_id = $rec['recipient_id'];
 
-// Calculate distance in meters between controller and recipient
-function haversine($lat1, $lon1, $lat2, $lon2) {
-    $R = 6371000; // Earth radius in meters
-    $dLat = deg2rad($lat2 - $lat1);
-    $dLon = deg2rad($lon2 - $lon1);
-    $a = sin($dLat/2) * sin($dLat/2) +
-         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-         sin($dLon/2) * sin($dLon/2);
-    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
-    return $R * $c;
-}
-
 // Get recipient coordinates
 $rec_coords = mysqli_query($conn, "SELECT latitude, longitude FROM recipient WHERE recipient_id = '$recipient_id'");
 $rec_row = mysqli_fetch_assoc($rec_coords);
-
-$distance = haversine($lat, $long, $rec_row['latitude'], $rec_row['longitude']);
 
 $parcel_status = ($user_verify == 1) ? 'Delivered' : 'Delivery';
 

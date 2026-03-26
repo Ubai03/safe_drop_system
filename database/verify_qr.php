@@ -58,7 +58,7 @@ if (!$recipient_id || !$token || !$otp) {
     exit;
 }
 
-// 1. Verify the tracking link
+//Verify the tracking link
 $query = "SELECT * FROM tracking_links WHERE recipient_id='$recipient_id' AND token='$token'";
 $result = mysqli_query($conn, $query);
 if (!$result || mysqli_num_rows($result) === 0) {
@@ -75,38 +75,7 @@ if (empty($tracking['totp_secret'])) {
 
 $totp_secret = $tracking['totp_secret'];
 
-// 2. Check if recipient is locked (pending or rejected)
-$lock_query = "
-    SELECT status 
-    FROM notification 
-    WHERE recipient_id = '$recipient_id' 
-    ORDER BY created_at DESC 
-    LIMIT 1
-";
-$lock_result = mysqli_query($conn, $lock_query);
-if ($lock_result && mysqli_num_rows($lock_result) > 0) {
-    $lock = mysqli_fetch_assoc($lock_result);
-    if ($lock['status'] == 'pending') {
-        echo json_encode(["status" => "locked", "message" => "Admin approval required before retry."]);
-        exit;
-    } elseif ($lock['status'] == 'rejected') {
-        echo json_encode(["status" => "locked", "message" => "Access denied by admin. Please return parcel to hub."]);
-        exit;
-    }
-}
-
-// 3. Get recipient phone
-/*$recipient_query = "SELECT no_tel FROM recipient WHERE recipient_id='$recipient_id' LIMIT 1";
-$recipient_result = mysqli_query($conn, $recipient_query);
-if (!$recipient_result || mysqli_num_rows($recipient_result) === 0) {
-    echo json_encode(["status" => "error", "message" => "Recipient not found."]);
-    exit;
-}
-$recipient = mysqli_fetch_assoc($recipient_result);
-$phone = preg_replace('/\D/', '', $recipient['no_tel']);
-$real_last_4 = substr($phone, -4);*/
-
-// 4. Get last recorded remaining attempts
+//Get last recorded remaining attempts
 $attempt_query = "
     SELECT attempt_remaining 
     FROM access_log 
@@ -118,37 +87,7 @@ $attempt_result = mysqli_query($conn, $attempt_query);
 $attempt_row = mysqli_fetch_assoc($attempt_result);
 $attempt_remaining = intval($attempt_row['attempt_remaining'] ?? -1); // -1 means no record yet
 
-// 5. Reset attempts if admin has approved
-$approval_check = "
-    SELECT status 
-    FROM notification 
-    WHERE recipient_id = '$recipient_id'
-    ORDER BY created_at DESC 
-    LIMIT 1
-";
-$approval_result = mysqli_query($conn, $approval_check);
-if ($approval_result && mysqli_num_rows($approval_result) > 0) {
-    $approval = mysqli_fetch_assoc($approval_result);
-    if ($approval['status'] == 'approved') {
-        // Reset attempts to 2
-        mysqli_query($conn, "
-            INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
-            VALUES ('$recipient_id', NOW(), 2)
-        ");
-        // Also mark notification as "used"
-        mysqli_query($conn, "
-            UPDATE notification 
-            SET status = 'used'
-            WHERE recipient_id = '$recipient_id'
-            ORDER BY created_at DESC 
-            LIMIT 1
-        ");
-        $attempt_remaining = 2; // So next steps know the count
-    }
-}
-
-
-// 6. Handle password check
+//Handle OTP check
 if (verifyTOTP($totp_secret, $otp)) {
     // CORRECT PASSWORD
     mysqli_query($conn, "
@@ -170,45 +109,28 @@ if (verifyTOTP($totp_secret, $otp)) {
     exit;
 }
 
-//  7. Wrong password logic
-// Case A — First time ever (no record yet)
+//Wrong OTP
 if ($attempt_remaining < 0) {
-    $alert_message = "⚠️ Recipient ID $recipient_id entered incorrect password. Awaiting admin approval for retry.";
-    mysqli_query($conn, "
-        INSERT INTO notification (recipient_id, content, created_at, status)
-        VALUES ('$recipient_id', '$alert_message', NOW(), 'pending')
-    ");
-    mysqli_query($conn, "
-        INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
-        VALUES ('$recipient_id', NOW(), 0)
-    ");
-    echo json_encode(["status" => "locked", "message" => "Incorrect password. Admin approval required before retry."]);
-    exit;
+    $attempt_remaining = 3;
 }
 
-// Case B — Has remaining attempts (after approval)
-if ($attempt_remaining > 0) {
-    $new_remaining = $attempt_remaining - 1;
-    mysqli_query($conn, "
-        UPDATE access_log
-        SET attempt_remaining = '$new_remaining',
-            attempted_at = NOW()
-        WHERE recipient_id = '$recipient_id'
-        ORDER BY attempted_at DESC
-        LIMIT 1
-    ");
+$new_remaining = $attempt_remaining - 1;
 
-    if ($new_remaining <= 0) {
-        // Notify admin again
-        $alert_message = "⚠️ Recipient ID $recipient_id has used all 2 attempts. Admin approval required again.";
-        mysqli_query($conn, "
-            INSERT INTO notification (recipient_id, content, created_at, status)
-            VALUES ('$recipient_id', '$alert_message', NOW(), 'pending')
-        ");
-        echo json_encode(["status" => "locked", "message" => "No attempts left. Admin approval required."]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Incorrect password. $new_remaining attempt(s) left."]);
-    }
-    exit;
+mysqli_query($conn, "
+    INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
+    VALUES ('$recipient_id', NOW(), '$new_remaining')
+");
+
+if ($new_remaining <= 0) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "No attempts left."
+    ]);
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Incorrect code. $new_remaining attempt(s) remaining."
+    ]);
 }
+exit;
 ?>
