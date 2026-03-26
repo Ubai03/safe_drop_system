@@ -175,8 +175,7 @@ $lng = $parcel['parcel_long'];
                 <!-- QR Scanner Section -->
                 <div class="card shadow mb-4 text-center">
                     <div class="card-body">
-                        <p>Scan this QR using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
-                        <img src="<?php echo htmlspecialchars($gaQrPath); ?>" alt="Google Authenticator QR" style="width:200px; margin:15px auto; display:block;">
+                        <p>Scan the QR on the box using <b>Google Authenticator</b>, then enter the 6-digit code.</p>
                         <button id="startScan" class="btn btn-success"><i class="fas fa-key"></i> Enter 6-digit Code</button>
                         <div id="otpSection" style="display:none; margin-top:15px;">
                           <input type="text" id="otpCode" maxlength="6" class="form-control text-center" placeholder="123456" style="width:150px; margin:auto; letter-spacing:4px;">
