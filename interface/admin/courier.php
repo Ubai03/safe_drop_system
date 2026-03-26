@@ -90,6 +90,25 @@
     </style>
 
 </head>
+<script>
+    $(document).ready(function(){
+        $('.editBtn').on('click', function(){
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var phone = $(this).data('phone');
+            var vehicle = $(this).data('vehicle');
+            var plate = $(this).data('plate');
+            var status = $(this).data('status');
+
+            $('#edit_id').val(id);
+            $('#edit_name').val(name);
+            $('#edit_phone').val(phone);
+            $('#edit_vehicle').val(vehicle);
+            $('#edit_plate').val(plate);
+            $('#edit_status').val(status);
+        });
+    });
+</script>
 <body>
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -318,9 +337,73 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Edit Courier Modal -->
+                <div class="modal fade" id="editCourierModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <form action="../../database/update_courier.php" method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                    <i class="fas fa-user-edit"></i> Edit Courier
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="user_id" id="edit_id">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" name="name" id="edit_name" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Phone Number</label>
+                                        <input type="text" name="phone" id="edit_phone" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Vehicle Type</label>
+                                        <select name="vehicle_type" id="edit_vehicle" class="form-control">
+                                        <option value="Motorbike">Motorbike</option>
+                                        <option value="Car">Car</option>
+                                        <option value="Van">Van</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Plate Number</label>
+                                        <input type="text" name="vehicle_plate" id="edit_plate" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select name="status" id="edit_status" class="form-control">
+                                            <option value="available">Available</option>
+                                            <option value="busy">Busy</option>
+                                            <option value="offline">Offline</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn notiClose" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn notiConfirm">Update</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
+                    <?php if(isset($_GET['success'])): ?>
+                        <div class="alert alert-success">
+                            Courier added successfully!
+                        </div>
+                    <?php endif; ?>
+                    <?php if(isset($_GET['delete'])): ?>
+                        <div class="alert alert-success">
+                            Courier deleted successfully!
+                        </div>
+                    <?php endif; ?>
+                    <?php if(isset($_GET['update'])): ?>
+                        <div class="alert alert-success">
+                            Courier updated successfully!
+                        </div>
+                    <?php endif; ?>
                     <!-- Page Heading -->
                     <h3 class="h3 mb-0 text-900" id="title">
                         <strong>
@@ -376,7 +459,18 @@
                                             ?>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary">Edit</button>
+                                            <button 
+                                                class="btn btn-sm btn-primary editBtn"
+                                                data-id="<?php echo $row['user_id']; ?>"
+                                                data-name="<?php echo $row['name']; ?>"
+                                                data-phone="<?php echo $row['phone']; ?>"
+                                                data-vehicle="<?php echo $row['vehicle_type']; ?>"
+                                                data-plate="<?php echo $row['vehicle_plate']; ?>"
+                                                data-status="<?php echo $row['status']; ?>"
+                                                data-toggle="modal"
+                                                data-target="#editCourierModal">
+                                                Edit
+                                            </button>
                                             <a href="../../database/delete_courier.php?id=<?php echo $row['user_id']; ?>" 
                                                 class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Are you sure you want to delete this courier?')">
