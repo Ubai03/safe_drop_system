@@ -102,15 +102,11 @@
                                     <div class="text-center">
                                         <img class="" src="../css/pictures/safeDrop_logo.png" style="height: 160px; width: 180px; margin-bottom: 20px">
                                         
-                                        <h6 class="text-center mb-4" style="color: white; font-weight: bold;">
-                                            " An IoT-Enabled Secure <span style="color: white; font-weight: bold;">Parcel</span> Delivery System
-                                            <span style="color: white; font-weight: bold;">on Android Using QR Code,</span> <br> 
-                                            <span style="color: white; font-weight: bold;">Pin Verification, and</span> <br>
-                                            <span style="color: white; font-weight: bold;">Real-Time GPS Tracking"</span> <br> 
-                                            
-                                        </h6>
+                                        <h5 class="text-center mb-4" style="color: white; font-weight: bold;">
+                                             "SMART IOT SECURE PARCEL DELIVERY SYSTEM"
+                                        </h5>
 
-                                        <h5 class="h5 text-900 mb-4" id="titleLogin"><b>Welcome Back!</b></h5>
+                                        <h6 class="h5 text-900 mb-4" id="titleLogin"><b>WELCOME BACK!</b></h6>
                                     </div>
                                     <form class="user" id="loginForm" method="post" action="../database/login_process.php">
                                         <div class="form-group">

@@ -2,10 +2,39 @@
 session_start();
 include("to_connect.php");
 extract($_POST);
+//captcha verification
+$captchaToken = $_POST['h-captcha-response'] ?? '';
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+if(empty($captchaToken)){
+    header("Location: ../interface/login.php?error=captchaMissing");
+    exit();
+}
+
+list($captchaSuccess, $captchaErrors) = verifyToken($captchaToken, $ip);
+
+if(!$captchaSuccess){
+    header("Location: ../interface/login.php?error=captchaFail");
+    exit();
+}
 
 $query = "SELECT * FROM user WHERE username = '$username'";
 $result = mysqli_query($conn, $query) or trigger_error(mysqli_error($conn));
 $rows = mysqli_fetch_array($result);
+
+if($rows) {
+    if (password_verify($password, $rows['password'])){
+        // no user_type check, directly login
+        $_SESSION['username'] = $username;
+        $_SESSION['adminID'] = $rows['user_id'];
+        header("location: ../interface/admin/index.php");
+        exit();
+    } else {
+        header("Location: ../interface/login.php?error=wrongPsw");
+    }
+} else {
+    header("Location: ../interface/login.php?error=wrongUsername");
+}
 
 function verifyToken(string $token, string $ip): array {
   $payload = http_build_query([
@@ -32,19 +61,5 @@ function verifyToken(string $token, string $ip): array {
     return [true, []];
   }
   return [false, $j["error-codes"] ?? []];
-}
-
-if($rows) {
-    if (password_verify($password, $rows['password'])){
-        // no user_type check, directly login
-        $_SESSION['username'] = $username;
-        $_SESSION['adminID'] = $rows['user_id'];
-        header("location: ../interface/admin/index.php");
-        exit();
-    } else {
-        header("Location: ../interface/login.php?error=wrongPsw");
-    }
-} else {
-    header("Location: ../interface/login.php?error=wrongUsername");
 }
 ?>
