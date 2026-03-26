@@ -377,7 +377,11 @@
                                         </td>
                                         <td>
                                             <button class="btn btn-sm btn-primary">Edit</button>
-                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                            <a href="../../database/delete_courier.php?id=<?php echo $row['user_id']; ?>" 
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this courier?')">
+                                                Delete
+                                            </a>
                                         </td>
                                     </tr>
                                     <?php } ?>
