@@ -70,6 +70,12 @@ try {
         throw new Exception("Failed to update tracking_links: " . mysqli_error($conn));
     }
 
+    //Timeline event
+    mysqli_query($conn,"
+        INSERT INTO parcel_log (recipient_id, status, updated_at)
+        VALUES ('$recipient_id', 'Tracking link generated', NOW())
+    ");
+
     // --- Build tracking link ---
     $tracking_link = "http://localhost/safe_drop_system/interface/recipient/tracking.php?recipient_id=$recipient_id&token=$token";
 

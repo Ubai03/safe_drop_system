@@ -90,6 +90,10 @@ $attempt_remaining = intval($attempt_row['attempt_remaining'] ?? -1); // -1 mean
 //Handle OTP check
 if (verifyTOTP($totp_secret, $otp)) {
     // CORRECT PASSWORD
+    mysqli_query($conn,"
+        INSERT INTO parcel_log (recipient_id, status, updated_at)
+        VALUES ('$recipient_id', 'Recipient verified OTP', NOW())
+    ");
     mysqli_query($conn, "
         UPDATE tbl_controller 
         SET user_verify = 1, status = 'Delivered'
@@ -100,6 +104,11 @@ if (verifyTOTP($totp_secret, $otp)) {
         WHERE recipient_id = '$recipient_id' AND status = 'Delivery'
         ORDER BY updated_at DESC
         LIMIT 1
+    ");
+    /* TIMELINE EVENT: PARCEL DELIVERED */
+    mysqli_query($conn,"
+        INSERT INTO parcel_log (recipient_id, status, updated_at)
+        VALUES ('$recipient_id', 'Parcel delivered', NOW())
     ");
     mysqli_query($conn, "
         INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)

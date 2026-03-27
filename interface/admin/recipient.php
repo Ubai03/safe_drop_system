@@ -154,6 +154,53 @@
             width: 100%;
             background-color: #fff;
         }
+        .parcel-timeline{
+            list-style:none;
+            margin:0;
+            padding-left:40px;
+            position:relative;
+        }
+        /* vertical line */
+        .parcel-timeline::before{
+            content:'';
+            position:absolute;
+            left:19px;
+            top:0;
+            bottom:0;
+            width:2px;
+            background:#d1d1d1;
+        }
+        /* each event */
+        .timeline-item{
+            position:relative;
+            margin-bottom:20px;
+        }
+        /* dot */
+        .timeline-item::before{
+            content:'';
+            position:absolute;
+            left:-26px;
+            top:5px;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#c4c4c4;
+        }
+        /* latest event */
+        .timeline-item:first-child::before{
+            background:#2ca24c;
+        }
+        /* time text */
+        .timeline-time{
+            font-size:13px;
+            color:#777;
+            margin-bottom:2px;
+        }
+        /* event text */
+        .timeline-content{
+            font-size:16px;
+            font-weight:500;
+        }
     </style>
 
 </head>
@@ -476,6 +523,7 @@
                                             <th>No.Tel</th>
                                             <th>Sender Address</th>
                                             <th>Location</th>
+                                            <th>Parcel Timeline</th>
                                             <th>Longitude</th>
                                             <th>Latitude</th>
                                             <th>QR Code</th>
@@ -494,6 +542,18 @@
                                             while($row = mysqli_fetch_assoc($result)) { 
 
                                                 $recipient_id = $row["recipient_id"];
+
+                                                /* ===== PARCEL TIMELINE QUERY ===== */
+                                                $timeline_query = "
+                                                SELECT status, updated_at
+                                                FROM parcel_log
+                                                WHERE recipient_id='$recipient_id'
+                                                ORDER BY updated_at DESC
+                                                LIMIT 1
+                                                ";
+
+                                                $timeline_result = mysqli_query($conn, $timeline_query);
+                                                $timeline = mysqli_fetch_assoc($timeline_result);
 
                                                 // ===== Google Authenticator QR (ADMIN DOWNLOAD) =====
                                                 $secretQuery = mysqli_query(
@@ -547,6 +607,11 @@
                                             <td id="text-center"><?php echo $row["no_tel"]; ?></td>
                                             <td id="text-center"><?php echo $row['sender_address']; ?></td>
                                             <td id="text-center"><?php echo $row["location"]; ?></td>
+                                            <td id="text-center">
+                                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#timelineModal<?php echo $recipient_id; ?>">
+                                                    <i class="fas fa-clock"></i> View Timeline
+                                                </button>
+                                            </td>
                                             <td id="text-center"><?php echo $row["longitude"]; ?></td>
                                             <td id="text-center"><?php echo $row["latitude"]; ?></td>
                                             <td style="text-align: center">
@@ -638,6 +703,47 @@
                                             </div>
                                         </div>
                                         <!-- End Delete Modal -->
+                                        <!-- Parcel Timeline Modal -->
+                                        <div class="modal fade" id="timelineModal<?php echo $recipient_id;?>" tabindex="-1">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">
+                                                            <i class="fas fa-shipping-fast"></i> Parcel Timeline
+                                                        </h5>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <?php
+                                                            $timeline_query = "
+                                                                SELECT status, updated_at 
+                                                                FROM parcel_log
+                                                                WHERE recipient_id='$recipient_id'
+                                                                ORDER BY updated_at DESC
+                                                            ";
+
+                                                            $timeline_result = mysqli_query($conn,$timeline_query);
+
+                                                            if(mysqli_num_rows($timeline_result)>0){
+                                                                echo "<ul class='parcel-timeline'>";
+                                                                while($t = mysqli_fetch_assoc($timeline_result)){
+                                                                    echo "<li class='timeline-item'>";
+                                                                    echo "<div class='timeline-time'>".date("d M H:i",strtotime($t['updated_at']))."</div>";
+                                                                    echo "<div class='timeline-content'>".$t['status']."</div>";
+                                                                    echo "</li>";
+                                                                }
+                                                                echo "</ul>";
+                                                            }else{
+                                                                echo "No parcel updates.";
+                                                            }
+                                                        ?>
+
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button class="btn notiClose" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <?php
                                                 }

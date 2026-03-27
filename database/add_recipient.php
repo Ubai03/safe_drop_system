@@ -35,12 +35,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                      VALUES ('$recipient_id', '$qrValue', NOW())";
         mysqli_query($conn, $insertQR);
 
-        // Step 4: Immediately mark parcel as "On Delivery"
-        $insertLog = "INSERT INTO parcel_log (recipient_id, status, updated_at)
-                      VALUES ('$recipient_id', 'Delivery', NOW())";
-        mysqli_query($conn, $insertLog);
+        // Step 4: Create first timeline event
+        mysqli_query($conn,"
+        INSERT INTO parcel_log (recipient_id, status, updated_at)
+        VALUES ('$recipient_id', 'Parcel registered in system', NOW())
+        ");
 
-        // Step 5: Update controller to reflect delivery started
+        // Step 5: Parcel is now in delivery
+        mysqli_query($conn,"
+        INSERT INTO parcel_log (recipient_id, status, updated_at)
+        VALUES ('$recipient_id', 'Parcel in delivery', NOW())
+        ");
+
+        // Step 6: Update controller to reflect delivery started
         mysqli_query($conn, "
                         UPDATE tbl_controller 
                         SET status = 'Delivery',
