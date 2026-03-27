@@ -14,7 +14,7 @@ if(empty($captchaToken)){
 list($captchaSuccess, $captchaErrors) = verifyToken($captchaToken, $ip);
 
 if(!$captchaSuccess){
-    header("Location: ../interface/login.php?error=captchaFail");
+    header("Location: ../interface/login.php?error=captchaFailed");
     exit();
 }
 

@@ -407,6 +407,10 @@
                                             <input class="form-control" type="text" name="no_tel" required>
                                         </div>
                                         <div class="form-group">
+                                            <label for="rack-position" class="col-form-label">Sender Address</label>
+                                            <input class="form-control" type="text" name="sender_address" placeholder="e.g. Lot 23, Jalan ABC, Kuala Lumpur" required >
+                                        </div>
+                                        <div class="form-group">
                                             <label for="rfid-num" class="col-form-label">Location</label>
                                             <input class="form-control" type="text" name="location" id="location" placeholder="e.g. Lot 23, Jalan ABC, Kuala Lumpur" required>
                                         </div>
@@ -470,6 +474,7 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>No.Tel</th>
+                                            <th>Sender Address</th>
                                             <th>Location</th>
                                             <th>Longitude</th>
                                             <th>Latitude</th>
@@ -530,6 +535,7 @@
                                                 $name = $row["name"];
                                                 $email = $row["email"];
                                                 $no_tel = $row["no_tel"];
+                                                $sender_address = $row["sender_address"];
                                                 $location = $row["location"];
                                                 $longitude = $row["longitude"];
                                                 $latitude = $row["latitude"];
@@ -539,6 +545,7 @@
                                             <td id="text-center"><?php echo $row["name"]; ?></td>
                                             <td id="text-center"><?php echo $row["email"]; ?></td>
                                             <td id="text-center"><?php echo $row["no_tel"]; ?></td>
+                                            <td id="text-center"><?php echo $row['sender_address']; ?></td>
                                             <td id="text-center"><?php echo $row["location"]; ?></td>
                                             <td id="text-center"><?php echo $row["longitude"]; ?></td>
                                             <td id="text-center"><?php echo $row["latitude"]; ?></td>

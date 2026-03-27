@@ -2,14 +2,24 @@
 <html lang="en">
 <?php
 
-    if (isset($_GET['error']) && $_GET['error'] == 'wrongPsw') {
+if (isset($_GET['error'])) {
+    if ($_GET['error'] == 'wrongPsw') {
         $alert_type = 'danger';
-        $alert_message = "Wrong password!.";
-    } elseif (isset($_GET['error']) && $_GET['error'] == 'wrongUsername') {
-        $alert_type = 'danger';
-        $alert_message = "Wrong username!.";
+        $alert_message = "Wrong password!";
     }
-    
+    elseif ($_GET['error'] == 'wrongUsername') {
+        $alert_type = 'danger';
+        $alert_message = "Wrong username!";
+    }
+    elseif ($_GET['error'] == 'captchaMissing') {
+        $alert_type = 'warning';
+        $alert_message = "Please complete the captcha before logging in.";
+    }
+    elseif ($_GET['error'] == 'captchaFailed') {
+        $alert_type = 'danger';
+        $alert_message = "Captcha verification failed. Please try again.";
+    }
+}
 ?>
 <head>
 

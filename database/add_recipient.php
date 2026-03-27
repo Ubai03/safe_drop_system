@@ -6,13 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $no_tel = $_POST['no_tel'];
+    $sender_address = $_POST['sender_address'];
     $location = $_POST['location'];
     $longitude = $_POST['longitude'];
     $latitude = $_POST['latitude'];
 
     // Step 1: Insert new recipient
-    $insert = "INSERT INTO recipient (name, email, no_tel, location, longitude, latitude)
-               VALUES ('$name', '$email', '$no_tel', '$location', '$longitude', '$latitude')";
+    $insert = "INSERT INTO recipient (name, email, no_tel, sender_address, location, longitude, latitude)
+               VALUES ('$name', '$email', '$no_tel', '$sender_address', '$location', '$longitude', '$latitude')";
     $result = mysqli_query($conn, $insert);
 
     if ($result) {
