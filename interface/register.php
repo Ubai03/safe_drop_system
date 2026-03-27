@@ -89,6 +89,18 @@
                                         <input type="password" class="form-control form-control-user" name="pswRepeat" id="pswRepeat" placeholder="Confirm Password" required>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-6">
+                                        <small id="strengthText" style="color:white;">Password Strength:</small>
+                                        <div style="width:100%;height:6px;background:#ccc;border-radius:10px;">
+                                            <div id="strengthBar" style="height:6px;width:0%;background:red;border-radius:10px;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <small id="matchText" style="color:white;"></small>
+                                    </div>
+                                </div>
                                 <button type="submit" class="btn btn-user btn-block" id="loginButton">
                                     REGISTER ACCOUNT
                                 </button>
@@ -117,6 +129,65 @@
     <!-- Custom scripts for all pages-->
     <script src="../jquery/sb-admin-2.min.js"></script>
 
+    <script>
+        const password = document.getElementById("psw");
+        const confirmPassword = document.getElementById("pswRepeat");
+
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthText = document.getElementById("strengthText");
+        const matchText = document.getElementById("matchText");
+
+        password.addEventListener("input", checkStrength);
+        confirmPassword.addEventListener("input", checkMatch);
+
+        function checkStrength(){
+            let val = password.value;
+            let strength = 0;
+
+            if(val.length >= 6) strength++;
+            if(/[A-Z]/.test(val)) strength++;
+            if(/[0-9]/.test(val)) strength++;
+            if(/[^A-Za-z0-9]/.test(val)) strength++;
+
+            if(strength == 1){
+                strengthBar.style.width = "25%";
+                strengthBar.style.background = "red";
+                strengthText.innerHTML = "Password Strength: Very Weak";
+            }
+            else if(strength == 2){
+                strengthBar.style.width = "50%";
+                strengthBar.style.background = "orange";
+                strengthText.innerHTML = "Password Strength: Weak";
+            }
+            else if(strength == 3){
+                strengthBar.style.width = "75%";
+                strengthBar.style.background = "yellow";
+                strengthText.innerHTML = "Password Strength: Medium";
+            }
+            else if(strength >= 4){
+                strengthBar.style.width = "100%";
+                strengthBar.style.background = "green";
+                strengthText.innerHTML = "Password Strength: Strong";
+            }
+        }
+
+        function checkMatch(){
+            document.getElementById("loginButton").disabled = password.value !== confirmPassword.value;
+
+            if(confirmPassword.value === ""){
+                matchText.innerHTML = "";
+                return;
+            }
+            if(password.value === confirmPassword.value){
+                matchText.innerHTML = "✔ Passwords match";
+                matchText.style.color = "lime";
+            }
+            else{
+                matchText.innerHTML = "✖ Passwords do not match";
+                matchText.style.color = "red";
+            }
+        }
+    </script>
 </body>
 
 </html>
