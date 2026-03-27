@@ -28,7 +28,10 @@ if (!$statusResult || mysqli_num_rows($statusResult) === 0) {
 $parcelStatus = mysqli_fetch_assoc($statusResult)['status'];
 
 // 2. If delivered, stop tracking
-if (strtolower($parcelStatus) === 'delivered') {
+if (
+    strtolower($parcelStatus) === 'delivered' ||
+    strtolower($parcelStatus) === 'parcel delivered'
+) {
     die("<h3 style='color:red;'>This parcel has already been delivered. Tracking link is no longer valid.</h3>");
 }
 
