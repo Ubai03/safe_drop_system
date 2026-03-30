@@ -11,18 +11,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $longitude = $_POST['longitude'];
     $latitude = $_POST['latitude'];
 
-    // Step 1: Insert new recipient
-    $insert = "INSERT INTO recipient (name, email, no_tel, sender_address, location, longitude, latitude)
-               VALUES ('$name', '$email', '$no_tel', '$sender_address', '$location', '$longitude', '$latitude')";
-    $result = mysqli_query($conn, $insert);
+    // Step 1: Insert new recipient (PREPARED STATEMENT)
+    $stmt = $conn->prepare("
+        INSERT INTO recipient 
+        (name, email, no_tel, sender_address, location, longitude, latitude)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->bind_param(
+        "sssssss",
+        $name,
+        $email,
+        $no_tel,
+        $sender_address,
+        $location,
+        $longitude,
+        $latitude
+    );
+    $result = $stmt->execute();
 
     if ($result) {
-        $recipient_id = mysqli_insert_id($conn);
+        $recipient_id = $conn->insert_id;
 
         // Step 2: Generate QR code automatically
         $qrData = "Recipient ID: $recipient_id\nName: $name\nLocation: $location";
         $folderPath = "../uploads/qr_codes/";
-        if (!is_dir($folderPath)) mkdir($folderPath, 0777, true);
+
+        if (!is_dir($folderPath)) {
+            mkdir($folderPath, 0777, true);
+        }
 
         $fileName = "qr_" . $recipient_id . ".png";
         $filePath = $folderPath . $fileName;
@@ -31,27 +47,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Step 3: Save to qr_code table
         $qrValue = "uploads/qr_codes/" . $fileName;
-        $insertQR = "INSERT INTO qr_code (recipient_id, qr_value, generated_at)
-                     VALUES ('$recipient_id', '$qrValue', NOW())";
-        mysqli_query($conn, $insertQR);
+        $stmtQR = $conn->prepare("
+            INSERT INTO qr_code (recipient_id, qr_value, generated_at)
+            VALUES (?, ?, NOW())
+        ");
+        $stmtQR->bind_param("is", $recipient_id, $qrValue);
+        $stmtQR->execute();
 
         // Step 4: Create first timeline event
-        mysqli_query($conn,"
-        INSERT INTO parcel_log (recipient_id, status, updated_at)
-        VALUES ('$recipient_id', 'Parcel registered in system', NOW())
+        $stmtLog1 = $conn->prepare("
+            INSERT INTO parcel_log (recipient_id, status, updated_at)
+            VALUES (?, 'Parcel registered in system', NOW())
         ");
+        $stmtLog1->bind_param("i", $recipient_id);
+        $stmtLog1->execute();
 
         // Step 5: Parcel is now in delivery
-        mysqli_query($conn,"
-        INSERT INTO parcel_log (recipient_id, status, updated_at)
-        VALUES ('$recipient_id', 'Parcel in delivery', NOW())
+        $stmtLog2 = $conn->prepare("
+            INSERT INTO parcel_log (recipient_id, status, updated_at)
+            VALUES (?, 'Parcel in delivery', NOW())
         ");
+        $stmtLog2->bind_param("i", $recipient_id);
+        $stmtLog2->execute();
 
         // Step 6: Update controller to reflect delivery started
-        mysqli_query($conn, "
-                        UPDATE tbl_controller 
-                        SET status = 'Delivery',
-                            user_verify = 0
+        $conn->query("
+            UPDATE tbl_controller 
+            SET status = 'Delivery',
+                user_verify = 0
         ");
     }
 

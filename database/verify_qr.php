@@ -48,10 +48,8 @@ function verifyTOTP($secret, $code, $window = 1) {
 $input = json_decode(file_get_contents("php://input"), true);
 
 $recipient_id = intval($input['recipient_id'] ?? 0);
-$token        = $conn->real_escape_string($input['token'] ?? '');
-/*$qr_code      = $conn->real_escape_string($input['qr_code'] ?? '');
-$last_digits  = $conn->real_escape_string($input['last_digits'] ?? '');*/
-$otp = $conn->real_escape_string($input['otp'] ?? '');
+$token = $input['token'] ?? '';
+$otp = $input['otp'] ?? '';
 
 if (!$recipient_id || !$token || !$otp) {
     echo json_encode(["status" => "error", "message" => "Missing required fields."]);
@@ -59,62 +57,78 @@ if (!$recipient_id || !$token || !$otp) {
 }
 
 //Verify the tracking link
-$query = "SELECT * FROM tracking_links WHERE recipient_id='$recipient_id' AND token='$token'";
-$result = mysqli_query($conn, $query);
-if (!$result || mysqli_num_rows($result) === 0) {
-    echo json_encode(["status" => "error", "message" => "Invalid or expired tracking link."]);
+$stmt = $conn->prepare(
+    "SELECT totp_secret FROM tracking_links 
+     WHERE recipient_id = ? AND token = ?"
+);
+$stmt->bind_param("is", $recipient_id, $token);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    echo json_encode(["status"=>"error","message"=>"Invalid or expired tracking link."]);
     exit;
 }
 
-$tracking = mysqli_fetch_assoc($result);
-
-if (empty($tracking['totp_secret'])) {
-    echo json_encode(["status" => "error", "message" => "Authenticator not set."]);
-    exit;
-}
-
+$tracking = $result->fetch_assoc();
 $totp_secret = $tracking['totp_secret'];
 
+if (empty($totp_secret)) {
+    echo json_encode(["status"=>"error","message"=>"Authenticator not set."]);
+    exit;
+}
+
 //Get last recorded remaining attempts
-$attempt_query = "
-    SELECT attempt_remaining 
-    FROM access_log 
-    WHERE recipient_id = '$recipient_id'
-    ORDER BY attempted_at DESC 
-    LIMIT 1
-";
-$attempt_result = mysqli_query($conn, $attempt_query);
-$attempt_row = mysqli_fetch_assoc($attempt_result);
-$attempt_remaining = intval($attempt_row['attempt_remaining'] ?? -1); // -1 means no record yet
+$stmt = $conn->prepare(
+    "SELECT attempt_remaining
+     FROM access_log
+     WHERE recipient_id = ?
+     ORDER BY attempted_at DESC
+     LIMIT 1"
+);
+
+$stmt->bind_param("i",$recipient_id);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+$attempt_remaining = intval($row['attempt_remaining'] ?? -1);
 
 //Handle OTP check
 if (verifyTOTP($totp_secret, $otp)) {
-    // CORRECT PASSWORD
-    mysqli_query($conn,"
-        INSERT INTO parcel_log (recipient_id, status, updated_at)
-        VALUES ('$recipient_id', 'Recipient verified OTP', NOW())
-    ");
-    mysqli_query($conn, "
+    // Timeline event
+    $stmt = $conn->prepare(
+        "INSERT INTO parcel_log (recipient_id,status,updated_at)
+         VALUES (?, 'Recipient verified OTP', NOW())"
+    );
+    $stmt->bind_param("i",$recipient_id);
+    $stmt->execute();
+    // Update controller
+    $conn->query("
         UPDATE tbl_controller 
         SET user_verify = 1, status = 'Delivered'
     ");
-    mysqli_query($conn, "
-        UPDATE parcel_log 
-        SET status = 'Delivered', updated_at = NOW()
-        WHERE recipient_id = '$recipient_id' AND status = 'Delivery'
-        ORDER BY updated_at DESC
-        LIMIT 1
-    ");
-    /* TIMELINE EVENT: PARCEL DELIVERED */
-    mysqli_query($conn,"
-        INSERT INTO parcel_log (recipient_id, status, updated_at)
-        VALUES ('$recipient_id', 'Parcel delivered', NOW())
-    ");
-    mysqli_query($conn, "
-        INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
-        VALUES ('$recipient_id', NOW(), 0)
-    ");
-    echo json_encode(["status" => "success", "message" => "✅ Verified successfully! Parcel delivered."]);
+    // Timeline delivered
+    $stmt = $conn->prepare(
+        "INSERT INTO parcel_log (recipient_id,status,updated_at)
+         VALUES (?, 'Parcel delivered', NOW())"
+    );
+    $stmt->bind_param("i",$recipient_id);
+    $stmt->execute();
+    // Access log success
+    $stmt = $conn->prepare(
+        "INSERT INTO access_log (recipient_id,attempted_at,attempt_remaining)
+         VALUES (?, NOW(), 0)"
+    );
+    $stmt->bind_param("i",$recipient_id);
+    $stmt->execute();
+
+    echo json_encode([
+        "status"=>"success",
+        "message"=>"✅ Verified successfully! Parcel delivered."
+    ]);
     exit;
 }
 
@@ -125,10 +139,12 @@ if ($attempt_remaining < 0) {
 
 $new_remaining = $attempt_remaining - 1;
 
-mysqli_query($conn, "
-    INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
-    VALUES ('$recipient_id', NOW(), '$new_remaining')
-");
+$stmt = $conn->prepare(
+    "INSERT INTO access_log (recipient_id,attempted_at,attempt_remaining)
+     VALUES (?, NOW(), ?)"
+);
+$stmt->bind_param("ii",$recipient_id,$new_remaining);
+$stmt->execute();
 
 if ($new_remaining <= 0) {
     echo json_encode([

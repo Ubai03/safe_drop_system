@@ -40,16 +40,16 @@
 
     if (isset($_GET['success']) && $_GET['success'] == 'true') {
         $alert_type = 'success';
-        $alert_message = "Successfully saved the product information.";
+        $alert_message = "Successfully saved recipient information.";
     } elseif (isset($_GET['success']) && $_GET['success'] == 'trueUpdate') {
         $alert_type = 'success';
-        $alert_message = "Successfully update the product information.";
+        $alert_message = "Successfully update recipient information.";
     } elseif (isset($_GET['success']) && $_GET['success'] == 'trueDelete') {
         $alert_type = 'success';
-        $alert_message = "Successfully delete the product information.";
+        $alert_message = "Successfully delete recipient information.";
     } elseif (isset($_GET['success']) && $_GET['success'] == 'trueDeleteAll') {
         $alert_type = 'success';
-        $alert_message = "Successfully delete all the product information.";
+        $alert_message = "Successfully delete all recipient information.";
     }
 ?>
 <!-- end session start -->

@@ -8,7 +8,7 @@ $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 $vehicle_type = $_POST['vehicle_type'];
 $vehicle_plate = $_POST['vehicle_plate'];
 
-// ✅ PREPARED STATEMENT (SAFE)
+// PREPARED STATEMENT (SQL INJECTION PREVENTION)
 $stmt = $conn->prepare("INSERT INTO user 
 (username, name, password, role, phone, vehicle_type, vehicle_plate, status) 
 VALUES (?, ?, ?, 'courier', ?, ?, ?, 'available')");

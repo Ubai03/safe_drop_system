@@ -1,7 +1,9 @@
 <?php
 session_start();
 include("to_connect.php");
-extract($_POST);
+// Get POST data safely
+$username = $_POST['username'] ?? '';
+$password = $_POST['password'] ?? '';
 //captcha verification
 $captchaToken = $_POST['h-captcha-response'] ?? '';
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
@@ -18,22 +20,29 @@ if(!$captchaSuccess){
     exit();
 }
 
-$query = "SELECT * FROM user WHERE username = '$username'";
-$result = mysqli_query($conn, $query) or trigger_error(mysqli_error($conn));
-$rows = mysqli_fetch_array($result);
+// Use prepared statement
+$stmt = $conn->prepare("SELECT user_id, username, password FROM user WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
 
-if($rows) {
-    if (password_verify($password, $rows['password'])){
-        // no user_type check, directly login
-        $_SESSION['username'] = $username;
-        $_SESSION['adminID'] = $rows['user_id'];
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+if($user) {
+    if(password_verify($password, $user['password'])){
+
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['adminID'] = $user['user_id'];
+
         header("location: ../interface/admin/index.php");
         exit();
     } else {
         header("Location: ../interface/login.php?error=wrongPsw");
+        exit();
     }
 } else {
     header("Location: ../interface/login.php?error=wrongUsername");
+    exit();
 }
 
 function verifyToken(string $token, string $ip): array {
