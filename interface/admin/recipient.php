@@ -715,10 +715,17 @@
                                                     <div class="modal-body">
                                                         <?php
                                                             $timeline_query = "
-                                                                SELECT status, updated_at 
+                                                                SELECT status, updated_at
                                                                 FROM parcel_log
-                                                                WHERE recipient_id='$recipient_id'
-                                                                ORDER BY updated_at DESC
+                                                                WHERE recipient_id = '$recipient_id'
+                                                                ORDER BY 
+                                                                CASE status
+                                                                    WHEN 'Parcel delivered' THEN 1
+                                                                    WHEN 'Recipient verified OTP' THEN 2
+                                                                    WHEN 'Tracking link generated' THEN 3
+                                                                    WHEN 'Parcel in delivery' THEN 4
+                                                                    WHEN 'Parcel registered in system' THEN 5
+                                                                END ASC
                                                             ";
 
                                                             $timeline_result = mysqli_query($conn,$timeline_query);
