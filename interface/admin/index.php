@@ -128,15 +128,15 @@
             </li>
 
             <li class="nav-item active">
-                <a class="nav-link" href="recipient.php" id="sidebar">
-                    <i class="fas fa-fw fa-user" style="color: white;"></i>
-                    <span>Recipient</span></a>
-            </li>
-
-            <li class="nav-item active">
                 <a class="nav-link" href="courier.php" id="sidebar">
                     <i class="fas fa-fw fa-user" style="color: white;"></i>
                     <span>Courier</span></a>
+            </li>
+
+            <li class="nav-item active">
+                <a class="nav-link" href="recipient.php" id="sidebar">
+                    <i class="fas fa-fw fa-user" style="color: white;"></i>
+                    <span>Recipient</span></a>
             </li>
 
             <li class="nav-item active">
