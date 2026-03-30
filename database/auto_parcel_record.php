@@ -5,6 +5,7 @@ header('Content-Type: application/json');
 $query = "
 SELECT 
     r.recipient_id,
+    r.tracking_number,
     r.name,
     r.email,
     r.no_tel,
@@ -39,6 +40,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         "recipient_name" => $row['name'],
         "no_tel" => $row['no_tel'],
         "email" => $row['email'],
+        "tracking_number" => $row['tracking_number'],
         "location" => $row['location'],
         "status" => $statusBadge
     ];

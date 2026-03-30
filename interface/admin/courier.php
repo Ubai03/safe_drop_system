@@ -424,6 +424,7 @@
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="color: black;">
                                 <thead style="text-align:center">
                                     <tr>
+                                        <th>Courier Id</th>
                                         <th>Name</th>
                                         <th>Phone No.</th>
                                         <th>Vehicle</th>
@@ -443,6 +444,7 @@
                                     while($row = mysqli_fetch_assoc($result)) {
                                     ?>
                                     <tr style="text-align:center">
+                                        <td><?php echo $row['user_id']; ?></td>
                                         <td><?php echo $row['name']; ?></td>
                                         <td><?php echo $row['phone']; ?></td>
                                         <td><?php echo $row['vehicle_type']; ?></td>

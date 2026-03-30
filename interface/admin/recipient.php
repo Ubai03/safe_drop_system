@@ -187,8 +187,11 @@
             background:#c4c4c4;
         }
         /* latest event */
-        .timeline-item:first-child::before{
+        .timeline-item:last-child::before{
             background:#2ca24c;
+        }
+        .timeline-item:last-child .timeline-content{
+            font-weight:600;
         }
         /* time text */
         .timeline-time{
@@ -720,11 +723,11 @@
                                                                 WHERE recipient_id = '$recipient_id'
                                                                 ORDER BY 
                                                                 CASE status
-                                                                    WHEN 'Parcel delivered' THEN 1
-                                                                    WHEN 'Recipient verified OTP' THEN 2
+                                                                    WHEN 'Parcel registered in system' THEN 1
+                                                                    WHEN 'Parcel in delivery' THEN 2
                                                                     WHEN 'Tracking link generated' THEN 3
-                                                                    WHEN 'Parcel in delivery' THEN 4
-                                                                    WHEN 'Parcel registered in system' THEN 5
+                                                                    WHEN 'Recipient verified OTP' THEN 4
+                                                                    WHEN 'Parcel delivered' THEN 5
                                                                 END ASC
                                                             ";
 

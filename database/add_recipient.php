@@ -11,14 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $longitude = $_POST['longitude'];
     $latitude = $_POST['latitude'];
 
+    $tracking_number = "SD-" . date("Ymd") . "-" . rand(100,999);
     // Step 1: Insert new recipient (PREPARED STATEMENT)
     $stmt = $conn->prepare("
-        INSERT INTO recipient 
-        (name, email, no_tel, sender_address, location, longitude, latitude)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO recipient
+        (tracking_number,name,email,no_tel,sender_address,location,longitude,latitude)
+        VALUES (?,?,?,?,?,?,?,?)
     ");
     $stmt->bind_param(
-        "sssssss",
+        "ssssssss",
+        $tracking_number,
         $name,
         $email,
         $no_tel,

@@ -313,6 +313,7 @@
                                             <th>Recipient Name</th>
                                             <th>No.Tel</th>
                                             <th>Email</th>
+                                            <th>Tracking No.</th>
                                             <th>Location</th>
                                             <th>Status</th>
                                             <th>Action</th>
@@ -378,6 +379,7 @@ $(document).ready(function() {
             { "data": "recipient_name", "className": "text-center" },
             { "data": "no_tel", "className": "text-center" },
             { "data": "email", "className": "text-center" },
+            { "data": "tracking_number", "className": "text-center" },
             { "data": "location", "className": "text-center" },
             { "data": "status", "className": "text-center" },
             {
