@@ -464,7 +464,22 @@
                                             <label for="rfid-num" class="col-form-label">Location</label>
                                             <input class="form-control" type="text" name="location" id="location" placeholder="e.g. Lot 23, Jalan ABC, Kuala Lumpur" required>
                                         </div>
-
+                                        <div class="form-group">
+                                            <label>Assign Courier</label>
+                                            <select name="courier_id" class="form-control">
+                                                <option value="">-- Select Courier --</option>
+                                                <?php
+                                                $courierQuery = mysqli_query($conn,
+                                                    "SELECT user_id, name FROM user WHERE role='courier' AND status='available'"
+                                                );
+                                                while($courier = mysqli_fetch_assoc($courierQuery)){
+                                                ?>
+                                                    <option value="<?php echo $courier['user_id']; ?>">
+                                                        <?php echo $courier['name']; ?>
+                                                    </option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
                                          <!-- Hidden fields for auto-filled coordinates -->
                                         <input type="hidden" name="longitude" id="longitude">
                                         <input type="hidden" name="latitude" id="latitude">
@@ -520,7 +535,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="color: black;">
                                     <thead style="text-align:center">
                                         <tr>
-                                            <th>ID</th>
+                                            <th>Recipient ID</th>
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>No.Tel</th>
@@ -529,16 +544,18 @@
                                             <th>Parcel Timeline</th>
                                             <th>Longitude</th>
                                             <th>Latitude</th>
+                                            <th>Courier</th>
                                             <th>QR Code</th>
                                             <th>Action</th>
                                         </tr>          
                                     </thead>
                                     <tbody>
                                         <?php 
-                                        $query = "SELECT r.*, q.qr_value, q.generated_at
-                                                FROM recipient r
-                                                LEFT JOIN qr_code q ON r.recipient_id = q.recipient_id
-                                                ORDER BY r.recipient_id ASC";
+                                        $query = "SELECT r.*, q.qr_value, q.generated_at, u.name AS courier_name
+                                            FROM recipient r
+                                            LEFT JOIN qr_code q ON r.recipient_id = q.recipient_id
+                                            LEFT JOIN user u ON r.courier_id = u.user_id
+                                            ORDER BY r.recipient_id ASC";
                                         $result = mysqli_query($conn, $query);
 
                                         if (mysqli_num_rows($result) > 0){
@@ -595,6 +612,7 @@
                                                 }
 
                                                 // Existing fields
+                                                $recipient_id = $row["recipient_id"];
                                                 $name = $row["name"];
                                                 $email = $row["email"];
                                                 $no_tel = $row["no_tel"];
@@ -602,6 +620,7 @@
                                                 $location = $row["location"];
                                                 $longitude = $row["longitude"];
                                                 $latitude = $row["latitude"];
+                                                $courier_id = $row["courier_name"]
                                         ?>
                                         <tr>
                                             <td id="text-center"><?php echo $row["recipient_id"]; ?></td>
@@ -617,6 +636,7 @@
                                             </td>
                                             <td id="text-center"><?php echo $row["longitude"]; ?></td>
                                             <td id="text-center"><?php echo $row["latitude"]; ?></td>
+                                            <td id="text-center"><?php echo $row['courier_name'] ?? "Not Assigned"; ?></td>
                                             <td style="text-align: center">
                                                 <?php if ($gaQrPath && file_exists($gaQrPath)): ?>
                                                     <a href="<?php echo htmlspecialchars($gaQrPath); ?>" download
