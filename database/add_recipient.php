@@ -16,11 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Step 1: Insert new recipient (PREPARED STATEMENT)
     $stmt = $conn->prepare("
         INSERT INTO recipient
-        (name,email,no_tel,sender_address,location,longitude,latitude,courier_id)
-        VALUES (?,?,?,?,?,?,?,?)
+        (tracking_number,name,email,no_tel,sender_address,location,longitude,latitude,courier_id)
+        VALUES (?,?,?,?,?,?,?,?,?)
     ");
     $stmt->bind_param(
-        "ssssssss",
+        "sssssssss",
+        $tracking_number,
         $name,
         $email,
         $no_tel,
