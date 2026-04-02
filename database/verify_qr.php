@@ -2,7 +2,6 @@
 header('Content-Type: application/json');
 include("to_connect.php");
 
-// ---- TOTP (Google Authenticator) helpers ----
 function base32Decode($base32) {
     $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     $base32 = strtoupper($base32);
@@ -56,30 +55,28 @@ if (!$recipient_id || !$token || !$otp) {
     exit;
 }
 
-//Verify the tracking link
+// Verify the tracking link
 $stmt = $conn->prepare(
     "SELECT totp_secret FROM tracking_links 
      WHERE recipient_id = ? AND token = ?"
 );
 $stmt->bind_param("is", $recipient_id, $token);
 $stmt->execute();
+$stmt->bind_result($totp_secret);
+$found = $stmt->fetch();
+$stmt->close();
 
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode(["status"=>"error","message"=>"Invalid or expired tracking link."]);
+if (!$found) {
+    echo json_encode(["status" => "error", "message" => "Invalid or expired tracking link."]);
     exit;
 }
-
-$tracking = $result->fetch_assoc();
-$totp_secret = $tracking['totp_secret'];
 
 if (empty($totp_secret)) {
-    echo json_encode(["status"=>"error","message"=>"Authenticator not set."]);
+    echo json_encode(["status" => "error", "message" => "Authenticator not set."]);
     exit;
 }
 
-//Get last recorded remaining attempts
+// Get last recorded remaining attempts
 $stmt = $conn->prepare(
     "SELECT attempt_remaining
      FROM access_log
@@ -87,52 +84,50 @@ $stmt = $conn->prepare(
      ORDER BY attempted_at DESC
      LIMIT 1"
 );
-
-$stmt->bind_param("i",$recipient_id);
+$stmt->bind_param("i", $recipient_id);
 $stmt->execute();
+$stmt->bind_result($attempt_remaining_db);
+$has_row = $stmt->fetch();
+$stmt->close();
 
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
+$attempt_remaining = $has_row ? intval($attempt_remaining_db) : -1;
 
-$attempt_remaining = intval($row['attempt_remaining'] ?? -1);
-
-//Handle OTP check
+// Handle OTP check
 if (verifyTOTP($totp_secret, $otp)) {
-    // Timeline event
     $stmt = $conn->prepare(
-        "INSERT INTO parcel_log (recipient_id,status,updated_at)
+        "INSERT INTO parcel_log (recipient_id, status, updated_at)
          VALUES (?, 'Recipient verified OTP', NOW())"
     );
-    $stmt->bind_param("i",$recipient_id);
+    $stmt->bind_param("i", $recipient_id);
     $stmt->execute();
-    // Update controller
-    $conn->query("
-        UPDATE tbl_controller 
-        SET user_verify = 1, status = 'Delivered'
-    ");
-    // Timeline delivered
+    $stmt->close();
+
+    $conn->query("UPDATE tbl_controller SET user_verify = 1, status = 'Delivered'");
+
     $stmt = $conn->prepare(
-        "INSERT INTO parcel_log (recipient_id,status,updated_at)
+        "INSERT INTO parcel_log (recipient_id, status, updated_at)
          VALUES (?, 'Parcel delivered', NOW())"
     );
-    $stmt->bind_param("i",$recipient_id);
+    $stmt->bind_param("i", $recipient_id);
     $stmt->execute();
-    // Access log success
+    $stmt->close();
+
     $stmt = $conn->prepare(
-        "INSERT INTO access_log (recipient_id,attempted_at,attempt_remaining)
+        "INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
          VALUES (?, NOW(), 0)"
     );
-    $stmt->bind_param("i",$recipient_id);
+    $stmt->bind_param("i", $recipient_id);
     $stmt->execute();
+    $stmt->close();
 
     echo json_encode([
-        "status"=>"success",
-        "message"=>"✅ Verified successfully! Parcel delivered."
+        "status" => "success",
+        "message" => "✅ Verified successfully! Parcel delivered."
     ]);
     exit;
 }
 
-//Wrong OTP
+// Wrong OTP
 if ($attempt_remaining < 0) {
     $attempt_remaining = 3;
 }
@@ -140,11 +135,12 @@ if ($attempt_remaining < 0) {
 $new_remaining = $attempt_remaining - 1;
 
 $stmt = $conn->prepare(
-    "INSERT INTO access_log (recipient_id,attempted_at,attempt_remaining)
+    "INSERT INTO access_log (recipient_id, attempted_at, attempt_remaining)
      VALUES (?, NOW(), ?)"
 );
-$stmt->bind_param("ii",$recipient_id,$new_remaining);
+$stmt->bind_param("ii", $recipient_id, $new_remaining);
 $stmt->execute();
+$stmt->close();
 
 if ($new_remaining <= 0) {
     echo json_encode([

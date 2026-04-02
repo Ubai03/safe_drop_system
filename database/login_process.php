@@ -1,10 +1,10 @@
 <?php
 session_start();
 include("to_connect.php");
-// Get POST data safely
+
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
-//captcha verification
+
 $captchaToken = $_POST['h-captcha-response'] ?? '';
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
@@ -20,19 +20,19 @@ if(!$captchaSuccess){
     exit();
 }
 
-// Use prepared statement
 $stmt = $conn->prepare("SELECT user_id, username, password FROM user WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$stmt->bind_result($db_user_id, $db_username, $db_password);
+$stmt->fetch();
+$stmt->close();
 
-if($user) {
-    if(password_verify($password, $user['password'])){
+if($db_username) {
+    if(password_verify($password, $db_password)){
 
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['adminID'] = $user['user_id'];
+        $_SESSION['username'] = $db_username;
+        $_SESSION['adminID'] = $db_user_id;
 
         header("location: ../interface/admin/index.php");
         exit();
